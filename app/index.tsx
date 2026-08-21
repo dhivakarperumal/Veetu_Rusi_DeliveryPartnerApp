@@ -3,7 +3,7 @@ import "../global.css";
 
 export default function Index() {
   return (
-    <View className="flex-1 items-center justify-center bg-slate-100 px-6">
+    <View className="flex-1 items-center justify-center bg-red-600 px-6">
       <Image
         source={require("../assets/images/logo.png")}
         className="h-24 w-24 rounded-2xl"
