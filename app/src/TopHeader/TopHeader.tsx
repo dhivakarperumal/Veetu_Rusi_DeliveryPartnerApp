@@ -51,8 +51,6 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       style={{
         paddingTop: Math.max(insets.top + 8, 20),
         backgroundColor: Colors.primary.darkGreen,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.12,
@@ -60,8 +58,8 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
         elevation: 6,
       }}
     >
-      <View className="flex-row items-center justify-between">
-      <View className="flex-row items-center">
+      <View className="flex-row items-center justify-between mt-2">
+        <View className="flex-row items-center">
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="white" />

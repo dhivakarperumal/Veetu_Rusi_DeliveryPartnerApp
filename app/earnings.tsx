@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import BottomBar from "./src/Buttombar/BottomBar";
+import TopHeader from "./src/TopHeader/TopHeader";
 import "../global.css";
 
 export default function Earnings() {
@@ -23,15 +24,13 @@ export default function Earnings() {
   return (
     <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-6 pt-6 pb-2">
-          <Text className="text-black font-extrabold text-2xl">My Earnings</Text>
-        </View>
 
-        <View className="px-6 mt-2 pb-24">
-          
+      {/* Fixed Header */}
+      <TopHeader title="My Earnings" />
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="px-6 mt-4 pb-24">
+
           {/* Date Selector */}
           <TouchableOpacity className="flex-row items-center mb-4 self-start">
             <Text className="text-gray-700 font-semibold text-sm mr-1">12 May - 18 May</Text>

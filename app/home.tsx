@@ -11,10 +11,11 @@ export default function Home() {
   return (
     <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header Section */}
-        <TopHeader />
 
+      {/* Fixed Header — outside ScrollView so it doesn't scroll */}
+      <TopHeader />
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Location Selector */}
         <View className="px-6 mt-4">
           <View className="bg-primary-darkGreen rounded-2xl flex-row items-center px-4 py-3 justify-between">
