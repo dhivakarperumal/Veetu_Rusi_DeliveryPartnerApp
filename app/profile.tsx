@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import BottomBar from './src/Buttombar/BottomBar';
+import TopHeader from './src/TopHeader/TopHeader';
 import '../global.css';
 
 export default function Profile() {
@@ -12,17 +13,12 @@ export default function Profile() {
     <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-6 pt-6 pb-2 flex-row justify-between items-center">
-          <Text className="text-black font-extrabold text-2xl">My Profile</Text>
-          <TouchableOpacity>
-            <Feather name="settings" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+      {/* Fixed Header */}
+      <TopHeader title="My Profile" />
 
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Profile Info */}
-        <View className="items-center mt-6 mb-8">
+        <View className="items-center mt-8 mb-8">
           <View className="relative">
             {/* Mocking the avatar with a View since we don't have the image asset */}
             <View className="w-28 h-28 bg-background-darkBeige rounded-full items-center justify-center border-4 border-white shadow-sm overflow-hidden">
