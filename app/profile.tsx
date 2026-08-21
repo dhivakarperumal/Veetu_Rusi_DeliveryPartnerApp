@@ -88,12 +88,12 @@ export default function Profile() {
 
             {/* Menu Options */}
             <View className="px-6 pb-24">
-              <MenuItem icon="user" label="Personal Information" />
-              <MenuItem icon="car" iconFamily="Ionicons" label="Vehicle Information" />
-              <MenuItem icon="file-text" label="Documents" />
-              <MenuItem icon="bank-outline" iconFamily="MaterialCommunityIcons" label="Bank Details" />
-              <MenuItem icon="bell" label="Notifications" />
-              <MenuItem icon="clock" label="Help & Support" />
+              <MenuItem icon="user" label="Personal Information" onPress={() => router.push('/personal-info')} />
+              <MenuItem icon="car" iconFamily="Ionicons" label="Vehicle Information" onPress={() => router.push('/vehicle-info')} />
+              <MenuItem icon="file-text" label="Documents" onPress={() => router.push('/documents')} />
+              <MenuItem icon="bank-outline" iconFamily="MaterialCommunityIcons" label="Bank Details" onPress={() => router.push('/bank-details')} />
+              <MenuItem icon="bell" label="Notifications" onPress={() => {}} />
+              <MenuItem icon="clock" label="Help & Support" onPress={() => router.push('/helpsupport')} />
 
               <TouchableOpacity
                 className="flex-row items-center py-4 px-2 mt-2"
@@ -112,9 +112,13 @@ export default function Profile() {
   );
 }
 
-function MenuItem({ icon, label, iconFamily = 'Feather' }: any) {
+function MenuItem({ icon, label, iconFamily = 'Feather', onPress }: any) {
   return (
-    <TouchableOpacity className="flex-row items-center justify-between py-4 px-2 border-b border-gray-100">
+    <TouchableOpacity
+      className="flex-row items-center justify-between py-4 px-2 border-b border-gray-100"
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View className="flex-row items-center">
         {iconFamily === 'Feather' && <Feather name={icon} size={22} color={Colors.text.primary} />}
         {iconFamily === 'Ionicons' && <Ionicons name={`${icon}-outline`} size={22} color={Colors.text.primary} />}
