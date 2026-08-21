@@ -44,22 +44,35 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
   };
 
   return (
-    <View className="px-6 pt-4 pb-4 flex-row items-center justify-between z-50">
+    <View
+      className="px-6 pt-4 pb-4 z-50"
+      style={{
+        backgroundColor: Colors.primary.darkGreen,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        elevation: 6,
+      }}
+    >
+      <View className="flex-row items-center justify-between">
       <View className="flex-row items-center">
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="black" />
+            <Feather name="arrow-left" size={24} color="white" />
           </TouchableOpacity>
         )}
 
         {title ? (
-          <Text className="text-black font-bold text-lg">{title}</Text>
+          <Text className="text-white font-bold text-lg">{title}</Text>
         ) : (
           <View>
-            <Text className="text-gray-500 text-xs font-medium">
+            <Text className="text-white/70 text-xs font-medium">
               Good Morning,
             </Text>
-            <Text className="text-black font-bold text-lg">{userName} 👋</Text>
+            <Text className="text-white font-bold text-lg">{userName} 👋</Text>
           </View>
         )}
       </View>
@@ -68,8 +81,8 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
         {/* Notifications */}
         <View>
           <TouchableOpacity onPress={() => setShowNotifMenu(true)}>
-            <Feather name="bell" size={24} color={Colors.accent.brown} />
-            <View className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+            <Feather name="bell" size={24} color="white" />
+            <View className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-400 rounded-full border-2 border-primary-darkGreen" />
           </TouchableOpacity>
 
           {/* Notifications Dropdown */}
@@ -102,12 +115,12 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
         </View>
 
         {/* Profile Avatar */}
-        <View className="ml-5">
+        <View className="ml-4">
           <TouchableOpacity
             onPress={() => setShowProfileMenu(true)}
-            className="w-10 h-10 rounded-full bg-primary-darkGreen items-center justify-center border-2 border-primary-lightGreen"
+            className="w-10 h-10 rounded-full bg-white items-center justify-center border-2 border-primary-lightGreen"
           >
-            <Text className="text-white font-bold text-lg">{firstLetter}</Text>
+            <Text className="text-primary-darkGreen font-bold text-lg">{firstLetter}</Text>
           </TouchableOpacity>
 
           {/* Profile Dropdown */}
@@ -144,6 +157,7 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
             </Pressable>
           </Modal>
         </View>
+      </View>
       </View>
     </View>
   );
