@@ -1,3 +1,4 @@
+import { Colors } from './src/constants/Colors';
 import React from 'react';
 import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +11,7 @@ export default function OrderDetails() {
   const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9F9F9]" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background-main" edges={['top', 'left', 'right']}>
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Custom Header for Order Details */}
@@ -24,8 +25,8 @@ export default function OrderDetails() {
             <Text className="text-gray-500 font-semibold text-sm">#ORD123456</Text>
           </View>
         </View>
-        <View className="bg-[#FDF6E7] px-4 py-1.5 rounded-xl">
-          <Text className="text-[#AF6333] font-bold text-sm">New</Text>
+        <View className="bg-background-lightBeige px-4 py-1.5 rounded-xl">
+          <Text className="text-accent-orange font-bold text-sm">New</Text>
         </View>
       </View>
 
@@ -37,7 +38,7 @@ export default function OrderDetails() {
             <Text className="text-gray-500 text-xs font-semibold mb-3">Pickup Location</Text>
             <View className="flex-row items-start justify-between">
               <View className="flex-row flex-1">
-                <Ionicons name="location-outline" size={20} color="#217032" className="mt-0.5" />
+                <Ionicons name="location-outline" size={20} color={Colors.primary.brandGreen} className="mt-0.5" />
                 <View className="ml-3 flex-1 pr-4">
                   <Text className="font-bold text-black text-sm">Anna Nagar, Chennai</Text>
                   <Text className="text-gray-500 text-xs mt-1 leading-relaxed">
@@ -45,8 +46,8 @@ export default function OrderDetails() {
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity className="w-10 h-10 rounded-full bg-[#FDF6E7] items-center justify-center">
-                <Feather name="phone" size={18} color="#AF6333" />
+              <TouchableOpacity className="w-10 h-10 rounded-full bg-background-lightBeige items-center justify-center">
+                <Feather name="phone" size={18} color={Colors.accent.orange} />
               </TouchableOpacity>
             </View>
           </View>
@@ -56,7 +57,7 @@ export default function OrderDetails() {
             <Text className="text-gray-500 text-xs font-semibold mb-3">Drop Location</Text>
             <View className="flex-row items-start justify-between">
               <View className="flex-row flex-1">
-                <Ionicons name="location-outline" size={20} color="#D32F2F" className="mt-0.5" />
+                <Ionicons name="location-outline" size={20} color={Colors.status.error} className="mt-0.5" />
                 <View className="ml-3 flex-1 pr-4">
                   <Text className="font-bold text-black text-sm">T. Nagar, Chennai</Text>
                   <Text className="text-gray-500 text-xs mt-1 leading-relaxed">
@@ -64,8 +65,8 @@ export default function OrderDetails() {
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity className="w-10 h-10 rounded-full bg-[#FDF6E7] items-center justify-center">
-                <Feather name="phone" size={18} color="#AF6333" />
+              <TouchableOpacity className="w-10 h-10 rounded-full bg-background-lightBeige items-center justify-center">
+                <Feather name="phone" size={18} color={Colors.accent.orange} />
               </TouchableOpacity>
             </View>
           </View>
@@ -86,7 +87,7 @@ export default function OrderDetails() {
             
             <View className="flex-row justify-between items-center py-3 border-b border-gray-100">
               <Text className="text-gray-600 text-xs font-medium">Payment</Text>
-              <Text className="text-[#217032] text-xs font-bold">Prepaid Online</Text>
+              <Text className="text-primary-brandGreen text-xs font-bold">Prepaid Online</Text>
             </View>
             
             <View className="flex-row justify-between items-center py-4">
@@ -103,7 +104,10 @@ export default function OrderDetails() {
         className="px-6 bg-transparent"
         style={{ paddingBottom: Math.max(insets.bottom, 24) }}
       >
-        <TouchableOpacity className="bg-[#304B26] w-full py-4 rounded-xl items-center shadow-md">
+        <TouchableOpacity 
+          className="bg-primary-darkGreen w-full py-4 rounded-xl items-center shadow-md"
+          onPress={() => router.push('/track-order')}
+        >
           <Text className="text-white font-bold text-base">Accept Order</Text>
         </TouchableOpacity>
       </View>

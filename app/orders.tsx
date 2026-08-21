@@ -10,7 +10,7 @@ export default function Orders() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9F9F9]" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background-main" edges={['top', 'left', 'right']}>
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Header */}
@@ -19,7 +19,7 @@ export default function Orders() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Tab Selector */}
         <View className="px-6 mt-2 mb-6 flex-row justify-between space-x-2">
-          <TouchableOpacity className="flex-1 bg-[#304B26] py-3 rounded-xl items-center shadow-sm">
+          <TouchableOpacity className="flex-1 bg-primary-darkGreen py-3 rounded-xl items-center shadow-sm">
             <Text className="text-white font-bold text-xs">New (3)</Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-1 bg-white border border-gray-100 py-3 rounded-xl items-center ml-2 shadow-sm">
@@ -75,8 +75,8 @@ function OrderDetailsCard({ id, time, price, pickup, drop }: any) {
         <Text className="font-bold text-black text-sm">{id}</Text>
         <View className="flex-row items-center">
           <Text className="text-gray-400 text-xs font-medium mr-3">{time}</Text>
-          <View className="bg-[#FDF6E7] px-3 py-1 rounded-lg">
-            <Text className="text-[#AF6333] font-bold text-xs">New</Text>
+          <View className="bg-background-lightBeige px-3 py-1 rounded-lg">
+            <Text className="text-accent-orange font-bold text-xs">New</Text>
           </View>
         </View>
       </View>
@@ -84,7 +84,7 @@ function OrderDetailsCard({ id, time, price, pickup, drop }: any) {
       {/* Locations */}
       <View className="mb-4">
         <View className="flex-row items-center mb-3">
-          <View className="w-2.5 h-2.5 rounded-full bg-[#217032] border-2 border-[#EBF7EB] ml-[1px]" />
+          <View className="w-2.5 h-2.5 rounded-full bg-primary-brandGreen border-2 border-primary-lightGreen ml-[1px]" />
           <Text className="text-gray-600 text-sm ml-3.5">{pickup}</Text>
         </View>
 
@@ -100,7 +100,7 @@ function OrderDetailsCard({ id, time, price, pickup, drop }: any) {
       {/* Footer Row */}
       <View className="flex-row justify-between items-center mt-2">
         <Text className="font-extrabold text-black text-xl">₹{price}</Text>
-        <TouchableOpacity className="bg-[#304B26] px-8 py-2.5 rounded-xl">
+        <TouchableOpacity className="bg-primary-darkGreen px-8 py-2.5 rounded-xl">
           <Text className="text-white font-bold text-sm">Accept</Text>
         </TouchableOpacity>
       </View>
