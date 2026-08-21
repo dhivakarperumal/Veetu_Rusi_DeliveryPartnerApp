@@ -373,43 +373,78 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
       </View>
 
       {/* Footer */}
-      <View className="flex-row items-center justify-between px-5 py-4">
-        <View>
-          <Text className="text-black font-extrabold text-xl">{price}</Text>
-          <Text className="text-gray-400 text-[10px] font-semibold uppercase">{payment}</Text>
+      <View className="px-5 pt-3 pb-5">
+        {/* Price row */}
+        <View className="flex-row items-center justify-between mb-4">
+          <View>
+            <Text className="text-black font-extrabold text-2xl">{price}</Text>
+            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{payment}</Text>
+          </View>
+          {/* Delivered badge */}
+          {status === "Delivered" && (
+            <View className="flex-row items-center bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+              <Feather name="check-circle" size={13} color="#059669" />
+              <Text className="text-emerald-700 font-bold text-xs ml-1.5">Delivered</Text>
+            </View>
+          )}
+          {status === "Cancelled" && (
+            <View className="flex-row items-center bg-red-50 border border-red-200 px-3 py-1.5 rounded-full">
+              <Feather name="x-circle" size={13} color="#dc2626" />
+              <Text className="text-red-600 font-bold text-xs ml-1.5">Cancelled</Text>
+            </View>
+          )}
         </View>
-        <View className="flex-row items-center">
-          {/* Show Update Status for all active delivery statuses */}
-          {DELIVERY_STATUSES.includes(status) && status !== "Delivered" && status !== "Cancelled" && (
+
+        {/* Action Buttons Row */}
+        {status !== "Delivered" && status !== "Cancelled" && (
+          <View className="flex-row" style={{ gap: 10 }}>
+            {/* Update Status Button */}
+            {DELIVERY_STATUSES.includes(status) && (
+              <TouchableOpacity
+                onPress={onEdit}
+                activeOpacity={0.85}
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: style.bg,
+                  borderColor: style.border,
+                  borderWidth: 1.5,
+                  paddingVertical: 13,
+                  borderRadius: 16,
+                  gap: 7,
+                }}
+              >
+                <Feather name="refresh-cw" size={14} color={style.text} />
+                <Text style={{ color: style.text, fontWeight: "800", fontSize: 12, letterSpacing: 0.3 }}>
+                  Update Status
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Track Button */}
             <TouchableOpacity
-              onPress={onEdit}
-              activeOpacity={0.8}
+              onPress={() => router.push({ pathname: "/track-order", params: { orderId: order.id } })}
+              activeOpacity={0.85}
               style={{
+                flex: DELIVERY_STATUSES.includes(status) ? 0.6 : 1,
                 flexDirection: "row",
                 alignItems: "center",
-                backgroundColor: style.bg,
-                borderColor: style.border,
-                borderWidth: 1.5,
-                paddingHorizontal: 14,
-                paddingVertical: 10,
-                borderRadius: 12,
-                marginRight: 8,
+                justifyContent: "center",
+                backgroundColor: Colors.primary.darkGreen,
+                paddingVertical: 13,
+                borderRadius: 16,
+                gap: 7,
               }}
             >
-              <Feather name="edit-2" size={13} color={style.text} />
-              <Text style={{ color: style.text, fontWeight: "700", fontSize: 12, marginLeft: 6 }}>
-                Update
+              <Feather name="navigation" size={14} color="white" />
+              <Text style={{ color: "white", fontWeight: "800", fontSize: 12, letterSpacing: 0.3 }}>
+                Track
               </Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={() => router.push({ pathname: "/track-order", params: { orderId: order.id } })}
-            className="bg-primary-darkGreen px-4 py-2.5 rounded-xl"
-            activeOpacity={0.8}
-          >
-            <Text className="text-white font-bold text-xs">Track</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
       </View>
     </View>
   );

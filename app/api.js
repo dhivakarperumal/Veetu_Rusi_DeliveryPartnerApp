@@ -114,6 +114,24 @@ export async function updateOrderStatus(orderId, status) {
   return response.data;
 }
 
+export async function getAvailableOrders() {
+  const response = await api.get("/delivery/orders/available");
+  return response.data;
+}
+
+export async function assignOrder(orderId, payload) {
+  const response = await api.patch(`/delivery/orders/${orderId}/assign`, payload);
+  return response.data;
+}
+
+export async function cancelOrder(orderId, reason, notes) {
+  const response = await api.post(`/user-food-orders/cancel/${orderId}`, {
+    cancellation_reason: reason,
+    cancellation_notes: notes,
+  });
+  return response.data;
+}
+
 export async function logoutUser() {
   await AsyncStorage.multiRemove(["userToken", "userProfile"]);
   clearTokenCache();

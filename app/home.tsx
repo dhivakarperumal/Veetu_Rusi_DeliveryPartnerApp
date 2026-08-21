@@ -1,10 +1,12 @@
-import { Colors } from './src/constants/Colors';
-import { ScrollView, Text, View, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Switch, Image, RefreshControl } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useRouter, Stack } from "expo-router";
 import BottomBar from "./src/Buttombar/BottomBar";
 import TopHeader from "./src/TopHeader/TopHeader";
+import NewOrderPopup from "./src/NewOrderPopup/NewOrderPopup";
+import { Colors } from "./src/constants/Colors";
 import "../global.css";
 
 export default function Home() {
@@ -81,6 +83,10 @@ export default function Home() {
         </View>
       </ScrollView>
 
+      {/* New Order Polling Popup */}
+      <NewOrderPopup />
+
+      {/* Bottom Navigation */}
       <BottomBar activeTab="home" />
     </SafeAreaView>
   );
