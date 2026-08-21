@@ -10,7 +10,7 @@ export default function Orders() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-background-main" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Header */}

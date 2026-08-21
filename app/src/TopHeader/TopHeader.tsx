@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getStoredUser, logoutUser } from "../../api";
 import { Colors } from "../constants/Colors";
 
@@ -12,6 +13,7 @@ type TopHeaderProps = {
 
 export default function TopHeader({ title, showBack }: TopHeaderProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const [userName, setUserName] = useState("User");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -45,8 +47,9 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
 
   return (
     <View
-      className="px-6 pt-4 pb-4 z-50"
+      className="px-6 pb-6 z-50"
       style={{
+        paddingTop: Math.max(insets.top + 8, 20),
         backgroundColor: Colors.primary.darkGreen,
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,

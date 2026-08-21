@@ -21,7 +21,7 @@ export default function Earnings() {
   const maxBarHeight = 120;
 
   return (
-    <SafeAreaView className="flex-1 bg-background-main" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
       
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>

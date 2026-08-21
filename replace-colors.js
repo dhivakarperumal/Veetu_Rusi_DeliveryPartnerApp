@@ -1,29 +1,23 @@
 const fs = require('fs');
 
-function fix(filePath, fn) {
-  if (!fs.existsSync(filePath)) return;
-  let c = fs.readFileSync(filePath, 'utf8');
-  let updated = fn(c);
-  fs.writeFileSync(filePath, updated, 'utf8');
-  console.log('Fixed', filePath);
-}
+const files = [
+  'app/home.tsx',
+  'app/orders.tsx',
+  'app/order-details.tsx',
+  'app/earnings.tsx',
+  'app/profile.tsx',
+  'app/track-order.tsx',
+];
 
-fix('app/index.tsx', c => c.replace(/text-\[#782D16\]/g, 'text-accent-darkBrown'));
-
-fix('app/track-order.tsx', c => c
-  .replace(/bg-\[#A1C9A1\]/g, 'bg-primary-mutedGreen')
-  .replace(/border-\[#5E3F22\]/g, 'border-accent-brown')
-  .replace(/bg-\[#D32F2F\]/g, 'bg-status-error')
-);
-
-fix('app/earnings.tsx', c => c.replace(/border-\[#DC9441\]/g, 'border-accent-golden'));
-
-fix('app/src/Buttombar/BottomBar.tsx', c => {
-  let result = c
-    .replace(/"#304B26"/g, 'Colors.primary.darkGreen')
-    .replace(/"#8F8F8F"/g, 'Colors.text.muted');
-  if (!result.includes('import { Colors }')) {
-    result = "import { Colors } from '../../constants/Colors';\n" + result;
+files.forEach(f => {
+  let content = fs.readFileSync(f, 'utf8');
+  // Remove 'top' from edges so TopHeader handles the safe area with its green bg
+  const updated = content.replace(
+    /edges={\[['"]top['"],\s*['"]left['"],\s*['"]right['"]\]}/g,
+    "edges={['left', 'right', 'bottom']}"
+  );
+  if (updated !== content) {
+    fs.writeFileSync(f, updated, 'utf8');
+    console.log('Updated:', f);
   }
-  return result;
 });
