@@ -121,3 +121,4 @@ function OrderCard({ id, price, distance, time, pickup, drop }: any) {
     </View>
   );
 
+}
