@@ -63,8 +63,13 @@ export default function Orders() {
 }
 
 function OrderDetailsCard({ id, time, price, pickup, drop }: any) {
+  const router = useRouter();
   return (
-    <View className="bg-white rounded-3xl p-5 shadow-sm border border-gray-50 mb-4">
+    <TouchableOpacity 
+      activeOpacity={0.8}
+      onPress={() => router.push('/order-details')}
+      className="bg-white rounded-3xl p-5 shadow-sm border border-gray-50 mb-4"
+    >
       {/* Header Row */}
       <View className="flex-row justify-between items-center mb-5">
         <Text className="font-bold text-black text-sm">{id}</Text>
@@ -99,6 +104,6 @@ function OrderDetailsCard({ id, time, price, pickup, drop }: any) {
           <Text className="text-white font-bold text-sm">Accept</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }

@@ -23,14 +23,14 @@ export default function BottomBar({ activeTab = 'home' }: { activeTab?: string }
         <Text className={`text-[10px] font-bold ${activeTab === 'orders' ? 'text-[#304B26]' : 'text-gray-400'}`}>Orders</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity className="items-center">
-        <Feather name="shopping-bag" size={24} color="#8F8F8F" style={{ marginBottom: 4 }} />
-        <Text className="text-[10px] font-semibold text-gray-400">Earnings</Text>
+      <TouchableOpacity className="items-center" onPress={() => router.push('/earnings')}>
+        <Feather name="shopping-bag" size={24} color={activeTab === 'earnings' ? "#304B26" : "#8F8F8F"} style={{ marginBottom: 4 }} />
+        <Text className={`text-[10px] font-bold ${activeTab === 'earnings' ? 'text-[#304B26]' : 'text-gray-400'}`}>Earnings</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity className="items-center">
-        <Feather name="user" size={24} color="#8F8F8F" style={{ marginBottom: 4 }} />
-        <Text className="text-[10px] font-semibold text-gray-400">Profile</Text>
+      <TouchableOpacity className="items-center" onPress={() => router.push('/profile')}>
+        <Feather name="user" size={24} color={activeTab === 'profile' ? "#304B26" : "#8F8F8F"} style={{ marginBottom: 4 }} />
+        <Text className={`text-[10px] font-bold ${activeTab === 'profile' ? 'text-[#304B26]' : 'text-gray-400'}`}>Profile</Text>
       </TouchableOpacity>
     </View>
   );
