@@ -14,7 +14,7 @@ export default function Orders() {
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Header */}
-      <TopHeader title="My Orders" showBack />
+      <TopHeader title="Orders"  />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Tab Selector */}
