@@ -1,170 +1,292 @@
-import { Feather } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Image,
+  ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "../constants/Colors";
+import { getStoredToken, loginWithIdentifier } from "../../api";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [mobile, setMobile] = useState("");
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = await getStoredToken();
+      if (token) {
+        router.replace("/home");
+        return;
+      }
+      setCheckingSession(false);
+    };
+    restoreSession();
+  }, [router]);
+
+  const passwordRef = useRef<TextInput>(null);
+
+  const handleLogin = async () => {
+    Keyboard.dismiss();
+    const cleanEmail = email.trim();
+    const cleanPass = password.trim();
+
+    if (!cleanEmail) {
+      setError("Please enter your email address.");
+      return;
+    }
+    if (!cleanPass) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await loginWithIdentifier(cleanEmail, cleanPass);
+      if (response?.token) {
+        router.replace("/home");
+      } else {
+        throw new Error(response?.message || "Login failed. Please try again.");
+      }
+    } catch (err: any) {
+      const msg =
+        err?.message || err instanceof Error
+          ? err.message
+          : "Invalid email or password.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (checkingSession) {
+    return (
+      <View className="flex-1 bg-background-main items-center justify-center">
+        <ActivityIndicator size="large" color="#304B26" />
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView
+    <KeyboardAvoidingView
       className="flex-1 bg-background-main"
-      edges={["top", "left", "right"]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
+      <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center", paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
-          {/* Top Banner with Logo */}
-          <View className="bg-[#FDF8EF] items-center justify-center pt-10 pb-8 px-8 rounded-b-[48px] overflow-hidden">
-            {/* Scooter + Logo Row */}
-            <View className="flex-row items-center justify-center w-full">
-              <Image
-                source={require("../../../assets/images/logo.png")}
-                className="w-28 h-28"
-                resizeMode="contain"
-              />
-              <View className="ml-2 items-center">
-                <Text
-                  className="text-accent-darkBrown font-extrabold text-3xl"
-                  style={{ fontStyle: "italic" }}
-                >
-                  Veetu Rusi
-                </Text>
-                <Text className="text-accent-darkBrown text-xs mt-0.5">
-                  வீட்டு ருசி
-                </Text>
-                <Text className="text-gray-500 text-[10px] mt-1">
-                  Traditional Taste, Homely Feel
-                </Text>
-              </View>
-            </View>
+          {/* Logo */}
+          <View className="w-[180px] h-[100px] mb-3 items-center justify-center">
+            <Image
+              source={require("../../../assets/images/logo.png")}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="contain"
+            />
           </View>
 
-          {/* Form Section */}
-          <View className="flex-1 px-6 pt-8">
-            <Text className="text-black font-extrabold text-2xl">
-              Welcome Back
+          {/* Greeting */}
+          <View className="items-center mb-6">
+            <Text className="text-2xl font-bold text-primary-darkGreen mb-1.5">
+              Welcome Back!
             </Text>
-            <Text className="text-gray-500 text-sm mt-1 mb-8">
-              Login to continue
+            <Text className="text-sm text-gray-500 text-center leading-5">
+              Login to access your delivery dashboard{"\n"}and start earning today.
             </Text>
+          </View>
 
-            {/* Mobile Number */}
-            <Text className="text-gray-700 font-semibold text-xs mb-2">
-              Mobile Number
-            </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3 mb-5">
-              <Text className="text-black font-bold text-sm mr-2">+91</Text>
-              <View className="w-px h-5 bg-gray-200 mr-3" />
-              <TextInput
-                className="flex-1 text-black text-sm"
-                placeholder="98765 43210"
-                placeholderTextColor="#BDBDBD"
-                keyboardType="phone-pad"
-                maxLength={10}
-                value={mobile}
-                onChangeText={setMobile}
-              />
+          {/* Login Card */}
+          <View className="w-full bg-white rounded-3xl p-6 shadow-sm mb-6">
+            {/* Card Header */}
+            <View className="flex-row items-center mb-6">
+              <View className="w-12 h-12 rounded-xl bg-primary-lightGreen items-center justify-center mr-3">
+                <MaterialCommunityIcons name="bike-fast" size={26} color="#304B26" />
+              </View>
+              <View>
+                <Text className="text-lg font-bold text-primary-darkGreen mb-0.5">
+                  Delivery Partner Login
+                </Text>
+                <Text className="text-xs text-gray-500">Please sign in to continue</Text>
+              </View>
+            </View>
+
+            {/* Error Message */}
+            {!!error && (
+              <View className="flex-row items-center mb-4 bg-status-errorLight p-2.5 rounded-xl">
+                <Ionicons name="alert-circle-outline" size={14} color="#D32F2F" />
+                <Text className="text-[13px] text-status-error ml-1.5 flex-1">
+                  {error}
+                </Text>
+              </View>
+            )}
+
+            {/* Email */}
+            <View className="mb-4">
+              <Text className="text-[13px] font-semibold text-gray-700 mb-1.5 ml-0.5">
+                Email Address
+              </Text>
+              <View
+                className={`flex-row items-center border rounded-xl h-[52px] px-3 bg-[#FAFAFA] ${
+                  error ? "border-status-error bg-status-errorLight" : "border-gray-200"
+                }`}
+              >
+                <Ionicons name="mail-outline" size={20} color="#9CA3AF" />
+                <TextInput
+                  value={email}
+                  onChangeText={(t) => {
+                    setEmail(t);
+                    if (error) setError("");
+                  }}
+                  placeholder="Enter your email address"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={{ flex: 1, fontSize: 15, color: "#1A1A1A", height: "100%", paddingVertical: 0, marginLeft: 8 }}
+                  maxLength={100}
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                />
+              </View>
             </View>
 
             {/* Password */}
-            <Text className="text-gray-700 font-semibold text-xs mb-2">
-              Password
-            </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3 mb-2">
-              <TextInput
-                className="flex-1 text-black text-sm"
-                placeholder="Enter password"
-                placeholderTextColor="#BDBDBD"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Feather
-                  name={showPassword ? "eye" : "eye-off"}
-                  size={18}
-                  color={Colors.text.muted}
+            <View className="mb-4">
+              <Text className="text-[13px] font-semibold text-gray-700 mb-1.5 ml-0.5">
+                Password
+              </Text>
+              <View
+                className={`flex-row items-center border rounded-xl h-[52px] px-3 bg-[#FAFAFA] ${
+                  error ? "border-status-error bg-status-errorLight" : "border-gray-200"
+                }`}
+              >
+                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
+                <TextInput
+                  ref={passwordRef}
+                  value={password}
+                  onChangeText={(t) => {
+                    setPassword(t);
+                    if (error) setError("");
+                  }}
+                  placeholder="Enter your password"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry={!showPass}
+                  style={{ flex: 1, fontSize: 15, color: "#1A1A1A", height: "100%", paddingVertical: 0, marginLeft: 8 }}
+                  returnKeyType="done"
+                  onSubmitEditing={handleLogin}
                 />
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowPass(!showPass)} className="p-1">
+                  <Ionicons
+                    name={showPass ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Forgot Password */}
-            <TouchableOpacity className="self-end mb-8">
-              <Text className="text-accent-orange font-semibold text-xs">
-                Forgot?
+            <TouchableOpacity className="self-end mb-5" activeOpacity={0.7}>
+              <Text className="text-[13px] text-accent-orange font-semibold">
+                Forgot Password?
               </Text>
             </TouchableOpacity>
 
             {/* Login Button */}
             <TouchableOpacity
-              className="bg-primary-darkGreen w-full py-4 rounded-2xl items-center shadow-md mb-6"
-              onPress={() => router.replace("/")}
+              className={`flex-row items-center justify-center bg-primary-darkGreen rounded-xl h-[52px] shadow-sm ${
+                loading ? "opacity-70" : ""
+              }`}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text className="text-white font-bold text-base">Login</Text>
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <MaterialCommunityIcons
+                    name="bike-fast"
+                    size={20}
+                    color="#FFFFFF"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text className="text-base font-bold text-white">Login</Text>
+                </>
+              )}
             </TouchableOpacity>
 
-            {/* Or continue with */}
-            <View className="flex-row items-center mb-6">
+            {/* Divider */}
+            <View className="flex-row items-center my-5">
               <View className="flex-1 h-px bg-gray-200" />
-              <Text className="text-gray-400 text-xs mx-4">
-                or continue with
-              </Text>
+              <Text className="mx-3 text-[13px] text-gray-400">or login with</Text>
               <View className="flex-1 h-px bg-gray-200" />
             </View>
 
-            {/* Social Login */}
-            <View className="flex-row justify-center space-x-5 mb-8">
-              <TouchableOpacity className="w-14 h-14 bg-white border border-gray-200 rounded-full items-center justify-center shadow-sm">
-                {/* Google Icon */}
-                <Text
-                  className="text-base font-bold"
-                  style={{ color: "#EA4335" }}
-                >
-                  G
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="w-14 h-14 bg-[#25D366] border border-gray-100 rounded-full items-center justify-center shadow-sm ml-5">
-                {/* WhatsApp Icon */}
-                <Feather name="message-circle" size={22} color="white" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Register */}
-            <View className="flex-row justify-center pb-8">
-              <Text className="text-gray-500 text-sm">
-                Don't have an account?{" "}
+            {/* WhatsApp Button */}
+            <TouchableOpacity
+              className="flex-row items-center justify-center border border-gray-200 rounded-xl h-[52px] bg-white"
+              activeOpacity={0.8}
+            >
+              <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
+              <Text className="text-[15px] font-semibold text-gray-700 ml-2">
+                Login with WhatsApp
               </Text>
-              <TouchableOpacity>
-                <Text className="text-accent-orange font-bold text-sm">
-                  Register
-                </Text>
-              </TouchableOpacity>
+            </TouchableOpacity>
+
+            {/* Secure Note */}
+            <View className="flex-row items-center justify-center mt-4">
+              <Ionicons name="shield-checkmark" size={14} color="#22C55E" />
+              <Text className="text-xs text-gray-400 ml-1.5">
+                Secure login for Delivery Partners only
+              </Text>
             </View>
           </View>
+
+          {/* Footer */}
+          <View className="w-full items-center mt-2">
+            <View className="flex-row items-center justify-between w-full mb-5 px-2.5">
+              <MaterialCommunityIcons name="bike" size={36} color="#304B26" style={{ opacity: 0.5 }} />
+              <View className="flex-1 items-center px-4">
+                <Text className="text-[15px] font-bold text-primary-darkGreen mb-1 text-center">
+                  Deliver fast. Earn more.
+                </Text>
+                <Text className="text-xs text-gray-400 text-center leading-4">
+                  Manage your orders and earnings{"\n"}all in one place.
+                </Text>
+              </View>
+              <MaterialCommunityIcons name="map-marker-path" size={36} color="#304B26" style={{ opacity: 0.5 }} />
+            </View>
+
+            <Text className="text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Text className="text-accent-orange font-bold">Contact Admin</Text>
+            </Text>
+          </View>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
