@@ -1,7 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { getStoredUser, logoutUser } from "../../api";
 import { Colors } from "../constants/Colors";
 
 type TopHeaderProps = {
@@ -11,11 +12,36 @@ type TopHeaderProps = {
 
 export default function TopHeader({ title, showBack }: TopHeaderProps) {
   const router = useRouter();
-  const userName = "Dhivakar";
-  const firstLetter = userName.charAt(0).toUpperCase();
 
+  const [userName, setUserName] = useState("User");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
+
+  // Load logged-in user from storage
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await getStoredUser();
+      if (user?.name) {
+        setUserName(user.name);
+      } else if (user?.email) {
+        setUserName(user.email.split("@")[0]);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const firstLetter = userName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    setShowProfileMenu(false);
+    await logoutUser();
+    router.replace("/src/Auth/LoginScreen");
+  };
+
+  const handleProfile = () => {
+    setShowProfileMenu(false);
+    router.push("/profile");
+  };
 
   return (
     <View className="px-6 pt-4 pb-4 flex-row items-center justify-between z-50">
@@ -90,21 +116,26 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
               className="flex-1"
               onPress={() => setShowProfileMenu(false)}
             >
-              <View className="absolute top-[80px] right-6 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 w-48">
-                <TouchableOpacity className="flex-row items-center p-3 border-b border-gray-50">
-                  <Feather
-                    name="user"
-                    size={18}
-                    color={Colors.primary.darkGreen}
-                  />
+              <View className="absolute top-[80px] right-6 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 w-52">
+                {/* User Info */}
+                <View className="px-3 py-3 border-b border-gray-100">
+                  <Text className="font-bold text-black text-sm">{userName}</Text>
+                  <Text className="text-xs text-gray-400 mt-0.5">Delivery Partner</Text>
+                </View>
+
+                <TouchableOpacity
+                  className="flex-row items-center p-3 border-b border-gray-50"
+                  onPress={handleProfile}
+                >
+                  <Feather name="user" size={18} color={Colors.primary.darkGreen} />
                   <Text className="ml-3 font-semibold text-black">Profile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="flex-row items-center p-3">
-                  <Feather
-                    name="log-out"
-                    size={18}
-                    color={Colors.status.error}
-                  />
+
+                <TouchableOpacity
+                  className="flex-row items-center p-3"
+                  onPress={handleLogout}
+                >
+                  <Feather name="log-out" size={18} color={Colors.status.error} />
                   <Text className="ml-3 font-semibold text-status-error">
                     Logout
                   </Text>
