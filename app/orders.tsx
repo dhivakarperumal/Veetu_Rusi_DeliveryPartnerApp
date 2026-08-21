@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import BottomBar from "./src/Buttombar/BottomBar";
+import TopHeader from "./src/TopHeader/TopHeader";
 import "../global.css";
 
 export default function Orders() {
@@ -13,12 +14,7 @@ export default function Orders() {
       <Stack.Screen options={{ headerShown: false }} />
       
       {/* Header */}
-      <View className="px-6 pt-4 pb-4 flex-row items-center">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text className="text-black font-bold text-lg">My Orders</Text>
-      </View>
+      <TopHeader title="My Orders" showBack />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Tab Selector */}

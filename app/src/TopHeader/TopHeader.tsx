@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
-export default function TopHeader() {
+type TopHeaderProps = {
+  title?: string;
+  showBack?: boolean;
+};
+
+export default function TopHeader({ title, showBack }: TopHeaderProps) {
+  const router = useRouter();
   const userName = "Dhivakar";
   const firstLetter = userName.charAt(0).toUpperCase();
 
@@ -10,12 +17,22 @@ export default function TopHeader() {
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
   return (
-    <View className="px-6 pt-4 pb-2 flex-row items-center justify-between z-50">
+    <View className="px-6 pt-4 pb-4 flex-row items-center justify-between z-50">
       <View className="flex-row items-center">
-        <View>
-          <Text className="text-gray-500 text-xs font-medium">Good Morning,</Text>
-          <Text className="text-black font-bold text-lg">{userName} 👋</Text>
-        </View>
+        {showBack && (
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+            <Feather name="arrow-left" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+        
+        {title ? (
+          <Text className="text-black font-bold text-lg">{title}</Text>
+        ) : (
+          <View>
+            <Text className="text-gray-500 text-xs font-medium">Good Morning,</Text>
+            <Text className="text-black font-bold text-lg">{userName} 👋</Text>
+          </View>
+        )}
       </View>
       
       <View className="flex-row items-center">
