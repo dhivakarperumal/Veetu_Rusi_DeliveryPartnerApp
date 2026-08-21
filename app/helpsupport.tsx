@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Linking } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { Colors } from './src/constants/Colors';
@@ -8,6 +8,7 @@ import '../global.css';
 
 export default function HelpSupport() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const faqs = [
     { q: "How do I accept an order?", a: "Go to the Orders tab, tap on a new order card, and press 'Accept Order'." },
@@ -21,7 +22,7 @@ export default function HelpSupport() {
     <SafeAreaView className="flex-1 bg-background-main" edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="px-6 pb-5 z-50" style={{ paddingTop: 52, backgroundColor: Colors.primary.darkGreen }}>
+      <View className="px-6 pb-5 z-50" style={{ paddingTop: Math.max(insets.top + 8, 20), backgroundColor: Colors.primary.darkGreen, paddingBottom: 16 }}>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="white" />
