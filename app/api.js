@@ -103,6 +103,17 @@ export async function loginWithIdentifier(identifier, password) {
   return { ...response.data, message: message || "Login successful" };
 }
 
+export async function getMyOrders(status = "All") {
+  const query = status && status !== "All" ? `?status=${encodeURIComponent(status)}` : "";
+  const response = await api.get(`/delivery/orders${query}`);
+  return response.data;
+}
+
+export async function updateOrderStatus(orderId, status) {
+  const response = await api.patch(`/delivery/orders/${orderId}/status`, { status });
+  return response.data;
+}
+
 export async function logoutUser() {
   await AsyncStorage.multiRemove(["userToken", "userProfile"]);
   clearTokenCache();
