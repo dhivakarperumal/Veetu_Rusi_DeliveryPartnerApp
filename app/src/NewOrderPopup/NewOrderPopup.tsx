@@ -4,21 +4,21 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Modal,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { Colors } from "../../../src/constants/Colors";
 import {
-  assignOrder,
-  cancelOrder,
-  getAvailableOrders,
-  getStoredUser,
+    assignOrder,
+    cancelOrder,
+    getAvailableOrders,
+    getStoredUser,
 } from "../../api";
-import { Colors } from "../../src/constants/Colors";
 
 export default function NewOrderPopup() {
   const [showPopup, setShowPopup] = useState(false);
