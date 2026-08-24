@@ -104,23 +104,40 @@ export async function loginWithIdentifier(identifier, password) {
 }
 
 export async function getMyOrders(status = "All") {
-  const query = status && status !== "All" ? `?status=${encodeURIComponent(status)}` : "";
+  const query =
+    status && status !== "All" ? `?status=${encodeURIComponent(status)}` : "";
   const response = await api.get(`/delivery/orders${query}`);
   return response.data;
 }
 
 export async function updateOrderStatus(orderId, status) {
-  const response = await api.patch(`/delivery/orders/${orderId}/status`, { status });
+  const response = await api.patch(`/delivery/orders/${orderId}/status`, {
+    status,
+  });
   return response.data;
 }
 
 export async function getAvailableOrders() {
-  const response = await api.get("/delivery/orders/available");
-  return response.data;
+  try {
+    const response = await api.get("/delivery/orders/available");
+    return response.data;
+  } catch (error) {
+    console.error("=== GET AVAILABLE ORDERS ERROR ===");
+    console.error("Endpoint:", "/delivery/orders/available");
+    console.error("Base URL:", API_BASE_URL);
+    console.error("Status Code:", error.status);
+    console.error("Error Message:", error.message);
+    console.error("Full Error:", JSON.stringify(error, null, 2));
+    console.error("==================================");
+    throw error;
+  }
 }
 
 export async function assignOrder(orderId, payload) {
-  const response = await api.patch(`/delivery/orders/${orderId}/assign`, payload);
+  const response = await api.patch(
+    `/delivery/orders/${orderId}/assign`,
+    payload,
+  );
   return response.data;
 }
 
