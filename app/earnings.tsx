@@ -2,15 +2,15 @@ import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -28,6 +28,7 @@ export default function Earnings() {
   const [paymentFilter, setPaymentFilter] = useState("All payments");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -64,9 +65,6 @@ export default function Earnings() {
   );
   const weekOrders = deliveredOrders.filter((order) =>
     isWithinDays(order, 7, today),
-  );
-  const monthOrders = deliveredOrders.filter((order) =>
-    isWithinDays(order, 30, today),
   );
   const weekEarnings = weekOrders.reduce(
     (sum, order) => sum + getOrderAmount(order),
@@ -118,6 +116,23 @@ export default function Earnings() {
         }
       >
         <View className="px-6 mt-4">
+          <View className="flex-row items-center justify-between mb-4">
+            <View>
+              <Text className="text-gray-500 text-xs">
+                Manage your earnings
+              </Text>
+              <Text className="text-xl font-extrabold text-gray-900 mt-1">
+                Earnings overview
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setFilterVisible(true)}
+              className="bg-primary-darkGreen rounded-xl px-4 py-3 flex-row items-center"
+            >
+              <Feather name="filter" size={16} color="white" />
+              <Text className="text-white text-xs font-bold ml-2">Filter</Text>
+            </TouchableOpacity>
+          </View>
           <View className="flex-row flex-wrap justify-between mb-3">
             <SummaryCard
               icon="briefcase"
@@ -143,117 +158,6 @@ export default function Earnings() {
               value={String(deliveredOrders.length)}
               note="Successfully delivered"
             />
-          </View>
-
-          {/* Date Selector */}
-          <Text className="text-lg font-extrabold text-gray-900 mt-3 mb-3">
-            Filter Earnings
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-3"
-          >
-            {[
-              "Today",
-              "Yesterday",
-              "This Week",
-              "This Month",
-              "Custom Range",
-            ].map((item) => (
-              <TouchableOpacity
-                key={item}
-                onPress={() => setRange(item)}
-                className={`mr-2 px-3 py-2.5 rounded-xl ${range === item ? "bg-accent-darkBrown" : "bg-white border border-gray-100"}`}
-              >
-                <Text
-                  className={`text-[11px] font-bold ${range === item ? "text-white" : "text-gray-500"}`}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <View className="flex-row items-center bg-white border border-gray-100 rounded-2xl px-4 py-1 mb-3">
-            <Feather name="search" size={16} color={Colors.text.muted} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Search by Order ID"
-              placeholderTextColor={Colors.text.muted}
-              className="flex-1 ml-3 text-gray-800 text-sm"
-            />
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mb-4"
-          >
-            {["All payments", "Paid", "Pending", "Processing"].map((item) => (
-              <TouchableOpacity
-                key={item}
-                onPress={() => setPaymentFilter(item)}
-                className={`mr-2 px-3 py-2 rounded-lg ${paymentFilter === item ? "bg-primary-darkGreen" : "bg-white border border-gray-100"}`}
-              >
-                <Text
-                  className={`text-[10px] font-bold ${paymentFilter === item ? "text-white" : "text-gray-500"}`}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <View className="flex-row mb-5">
-            <TouchableOpacity
-              onPress={() => {}}
-              className="flex-1 bg-primary-darkGreen rounded-xl py-3 items-center mr-2"
-            >
-              <Text className="text-white font-bold text-sm">Apply Filter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setSearch("");
-                setPaymentFilter("All payments");
-                setRange("This Week");
-              }}
-              className="px-5 bg-white border border-gray-200 rounded-xl py-3 items-center"
-            >
-              <Text className="text-gray-600 font-bold text-sm">Reset</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Date Selector */}
-          <TouchableOpacity
-            className="flex-row items-center mb-4 self-start"
-            disabled
-          >
-            <Text className="text-gray-700 font-semibold text-sm mr-1">
-              This week
-            </Text>
-            <Feather
-              name="chevron-down"
-              size={16}
-              color={Colors.text.secondary}
-            />
-          </TouchableOpacity>
-
-          {/* Total Earnings Card */}
-          <View className="bg-primary-darkGreen rounded-3xl p-6 mb-4 flex-row justify-between items-center shadow-md">
-            <View>
-              <Text className="text-white/80 font-medium text-xs mb-1">
-                This Week Earnings
-              </Text>
-              <Text className="text-white font-extrabold text-3xl">
-                ₹{weekEarnings.toFixed(2)}
-              </Text>
-            </View>
-            <View className="border border-accent-golden rounded-xl p-3 bg-primary-darkGreen">
-              <Feather
-                name="briefcase"
-                size={28}
-                color={Colors.accent.golden}
-              />
-            </View>
           </View>
 
           {/* Stats Row */}
@@ -449,6 +353,114 @@ export default function Earnings() {
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={filterVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterVisible(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-3xl p-6 max-h-[82%]">
+            <View className="flex-row items-center justify-between mb-5">
+              <View>
+                <Text className="text-gray-900 text-xl font-extrabold">
+                  Filter earnings
+                </Text>
+                <Text className="text-gray-400 text-xs mt-1">
+                  Choose how to view your records
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setFilterVisible(false)}
+                className="bg-gray-100 rounded-full p-2"
+              >
+                <Feather name="x" size={18} color={Colors.text.secondary} />
+              </TouchableOpacity>
+            </View>
+            <Text className="text-gray-500 text-xs font-bold mb-2">
+              Date range
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {[
+                "Today",
+                "Yesterday",
+                "This Week",
+                "This Month",
+                "Custom Range",
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  onPress={() => setRange(item)}
+                  className={`mr-2 px-3 py-2.5 rounded-xl ${range === item ? "bg-accent-darkBrown" : "bg-white border border-gray-100"}`}
+                >
+                  <Text
+                    className={`text-[11px] font-bold ${range === item ? "text-white" : "text-gray-500"}`}
+                  >
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <Text className="text-gray-500 text-xs font-bold mb-2">
+              Payment status
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {["All payments", "Paid", "Pending", "Processing"].map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  onPress={() => setPaymentFilter(item)}
+                  className={`mr-2 px-3 py-2.5 rounded-xl ${paymentFilter === item ? "bg-primary-darkGreen" : "bg-white border border-gray-100"}`}
+                >
+                  <Text
+                    className={`text-[11px] font-bold ${paymentFilter === item ? "text-white" : "text-gray-500"}`}
+                  >
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-1 mb-5">
+              <Feather name="search" size={16} color={Colors.text.muted} />
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search by Order ID"
+                placeholderTextColor={Colors.text.muted}
+                className="flex-1 ml-3 text-gray-800 text-sm"
+              />
+            </View>
+            <View className="flex-row">
+              <TouchableOpacity
+                onPress={() => setFilterVisible(false)}
+                className="flex-1 bg-primary-darkGreen rounded-xl py-3 items-center mr-2"
+              >
+                <Text className="text-white font-bold text-sm">
+                  Apply Filter
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setSearch("");
+                  setPaymentFilter("All payments");
+                  setRange("This Week");
+                }}
+                className="px-5 bg-white border border-gray-200 rounded-xl py-3 items-center"
+              >
+                <Text className="text-gray-600 font-bold text-sm">Reset</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Bottom Navigation */}
       <BottomBar activeTab="earnings" />
