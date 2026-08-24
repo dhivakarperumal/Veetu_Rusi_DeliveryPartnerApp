@@ -82,20 +82,10 @@ export default function Home() {
 
   const now = new Date();
   const periodOrders = orders.filter((order) => isInPeriod(order, period, now));
-  const availableOrders = orders.filter(
-    (order) => normalizeStatus(order) === "searching delivery partner",
-  );
   const deliveredOrders = periodOrders.filter((order) =>
     normalizeStatus(order).includes("delivered"),
   );
-  const pendingOrders = periodOrders.filter((order) =>
-    [
-      "pending",
-      "confirmed",
-      "preparing",
-      "searching delivery partner",
-    ].includes(normalizeStatus(order)),
-  );
+  const pendingOrders = periodOrders.filter((order) => isPendingStatus(order));
   const cancelledOrders = periodOrders.filter((order) =>
     normalizeStatus(order).includes("cancel"),
   );
@@ -119,6 +109,7 @@ export default function Home() {
 
       <ScrollView
         className="flex-1"
+        contentContainerStyle={{ paddingBottom: 150 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -233,13 +224,6 @@ export default function Home() {
               tone="red"
               wide={isTablet}
             />
-            <MetricCard
-              icon="inbox"
-              label="Available now"
-              value={availableOrders.length}
-              tone="purple"
-              wide={isTablet}
-            />
           </View>
 
           <View className="flex-row items-center justify-between mt-7 mb-3">
@@ -336,6 +320,13 @@ export default function Home() {
 
 function normalizeStatus(order: any) {
   return String(order.status || order.order_status || "pending").toLowerCase();
+}
+
+function isPendingStatus(order: any) {
+  const status = normalizeStatus(order);
+  return !["delivered", "cancelled", "failed", "completed"].some(
+    (terminalStatus) => status.includes(terminalStatus),
+  );
 }
 
 function isInPeriod(order: any, period: string, now: Date) {
