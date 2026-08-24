@@ -1,7 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import {
+    Image,
+    Modal,
+    Pressable,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../../src/constants/Colors";
 import { getStoredUser, logoutUser } from "../../api";
@@ -47,7 +54,7 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
 
   return (
     <View
-      className="px-6 pb-6 z-50"
+      className="px-6 pb-4 z-50"
       style={{
         paddingTop: Math.max(insets.top + 8, 20),
         backgroundColor: Colors.primary.darkGreen,
@@ -58,8 +65,15 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
         elevation: 6,
       }}
     >
-      <View className="flex-row items-center justify-between mt-2">
+      <View className="flex-row items-center justify-between mt-1">
         <View className="flex-row items-center">
+          <View className="w-11 h-11 rounded-2xl bg-white items-center justify-center mr-3 overflow-hidden border border-white/40">
+            <Image
+              source={require("../../../assets/images/logo.png")}
+              className="w-10 h-10"
+              resizeMode="contain"
+            />
+          </View>
           {showBack && (
             <TouchableOpacity onPress={() => router.back()} className="mr-4">
               <Feather name="arrow-left" size={24} color="white" />
