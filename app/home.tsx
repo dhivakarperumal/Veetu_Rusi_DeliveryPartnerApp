@@ -361,47 +361,63 @@ function isInPeriod(order: any, period: string, now: Date) {
 }
 
 function MetricCard({
-  icon,
-  label,
-  value,
-  tone,
-  wide,
+  icon, label, value, tone, wide,
 }: {
-  icon: any;
-  label: string;
-  value: number;
-  tone: string;
-  wide: boolean;
+  icon: any; label: string; value: number; tone: string; wide: boolean;
 }) {
-  const colors: Record<string, { bg: string; icon: string }> = {
-    green: { bg: "#EBF7EB", icon: Colors.primary.brandGreen },
-    gold: { bg: "#FFF5DE", icon: Colors.accent.golden },
-    orange: { bg: "#FFF0E8", icon: Colors.accent.orange },
-    blue: { bg: "#EAF3F7", icon: "#36758B" },
-    red: { bg: "#FDEAEA", icon: Colors.status.error },
-    purple: { bg: "#F0ECF7", icon: "#75618F" },
+  const palette: Record<string, { solid: string; dark: string; glow: string }> = {
+    green:  { solid: "#16A34A", dark: "#14532D", glow: "rgba(22,163,74,0.18)" },
+    gold:   { solid: "#D97706", dark: "#78350F", glow: "rgba(217,119,6,0.18)"  },
+    blue:   { solid: "#2563EB", dark: "#1E3A8A", glow: "rgba(37,99,235,0.18)"  },
+    red:    { solid: "#DC2626", dark: "#7F1D1D", glow: "rgba(220,38,38,0.18)"  },
+    purple: { solid: "#7C3AED", dark: "#4C1D95", glow: "rgba(124,58,237,0.18)" },
+    orange: { solid: "#EA580C", dark: "#7C2D12", glow: "rgba(234,88,12,0.18)"  },
   };
-  const palette = colors[tone];
+  const p = palette[tone] || palette.green;
+
   return (
-    <View
-      className={`bg-white rounded-2xl p-4 mb-3 border border-gray-100 ${wide ? "w-[31.5%]" : "w-[48.5%]"}`}
-    >
-      <View className="flex-row items-center justify-between">
-        <View
-          className="rounded-xl p-2.5"
-          style={{ backgroundColor: palette.bg }}
-        >
-          <Feather name={icon} size={17} color={palette.icon} />
-        </View>
-        <Feather name="more-horizontal" size={17} color="#C7C7C7" />
+    <View style={{
+      width: wide ? "31.5%" : "48.5%",
+      backgroundColor: p.solid,
+      borderRadius: 22,
+      marginBottom: 12,
+      padding: 18,
+      elevation: 5,
+      shadowColor: p.solid,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 12,
+      overflow: "hidden",
+    }}>
+      {/* Background decorative circle */}
+      <View style={{
+        position: "absolute", right: -18, bottom: -18,
+        width: 80, height: 80, borderRadius: 40,
+        backgroundColor: "rgba(255,255,255,0.1)",
+      }} />
+      <View style={{
+        position: "absolute", right: 10, top: -20,
+        width: 50, height: 50, borderRadius: 25,
+        backgroundColor: "rgba(255,255,255,0.07)",
+      }} />
+
+      {/* Icon */}
+      <View style={{
+        width: 38, height: 38, borderRadius: 12,
+        backgroundColor: "rgba(255,255,255,0.2)",
+        alignItems: "center", justifyContent: "center",
+        marginBottom: 14,
+      }}>
+        <Feather name={icon} size={18} color="white" />
       </View>
-      <Text className="text-2xl font-extrabold text-gray-900 mt-4">
+
+      {/* Value */}
+      <Text style={{ fontSize: 30, fontWeight: "900", color: "white", lineHeight: 34 }}>
         {value}
       </Text>
-      <Text
-        className="text-gray-500 text-xs font-medium mt-1"
-        numberOfLines={1}
-      >
+
+      {/* Label */}
+      <Text style={{ fontSize: 11, fontWeight: "600", color: "rgba(255,255,255,0.75)", marginTop: 5 }} numberOfLines={1}>
         {label}
       </Text>
     </View>
@@ -446,63 +462,121 @@ function QuickAction({
 function OrderCard({ order, onPress }: { order: any; onPress: () => void }) {
   const id = order.order_id || `#${order.id}`;
   const price = Number(order.total_amount || 0).toFixed(2);
-  const pickup = order.pickup_address || order.restaurant_address || "Restaurant Address";
-  const drop = order.delivery_address || order.street_address || "Customer Address";
-  const distance = order.distance ? `${order.distance} km` : "Est. distance unavailable";
-  
+  const pickup  = order.pickup_address  || order.restaurant_address || "Restaurant Address";
+  const drop    = order.delivery_address || order.street_address    || "Customer Address";
+  const status  = order.status || order.order_status || "New Order";
+  const customer = order.customer_name || "Customer";
+  const payment = order.payment_method || "COD";
+  const time = order.ordered_at || order.created_at
+    ? new Date(order.ordered_at || order.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+    : "";
+
   return (
-    <View className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-4" style={{ elevation: 2 }}>
-      {/* Header */}
-      <View className="flex-row justify-between items-center mb-5 pb-4 border-b border-gray-50">
-        <View>
-          <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Order ID</Text>
-          <Text className="font-extrabold text-gray-900 text-base">{id}</Text>
+    <View style={{
+      backgroundColor: "#fff",
+      borderRadius: 24,
+      marginBottom: 14,
+      borderWidth: 1.5,
+      borderColor: "#E2E8F0",
+      elevation: 4,
+      shadowColor: Colors.primary.darkGreen,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      overflow: "hidden",
+    }}>
+
+      {/* Header — dark green bg */}
+      <View style={{
+        backgroundColor: Colors.primary.darkGreen,
+        paddingHorizontal: 18, paddingVertical: 14,
+        flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{
+            width: 36, height: 36, borderRadius: 10,
+            backgroundColor: "rgba(255,255,255,0.15)",
+            alignItems: "center", justifyContent: "center", marginRight: 10,
+          }}>
+            <Feather name="shopping-bag" size={16} color="white" />
+          </View>
+          <View>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: "white" }}>{id}</Text>
+            <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 1 }}>{customer}{time ? ` · ${time}` : ""}</Text>
+          </View>
         </View>
-        <View className="bg-primary-lightGreen px-4 py-2 rounded-xl">
-          <Text className="text-primary-brandGreen font-extrabold text-sm">₹{price}</Text>
+
+        {/* Price chip */}
+        <View style={{
+          backgroundColor: "rgba(255,255,255,0.15)",
+          borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6,
+          borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
+        }}>
+          <Text style={{ fontSize: 15, fontWeight: "900", color: "white" }}>₹{price}</Text>
+          <Text style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", textAlign: "center" }}>{payment}</Text>
         </View>
       </View>
 
-      {/* Timeline Section */}
-      <View className="flex-row mb-5">
-        {/* Timeline Graphic */}
-        <View className="items-center mr-4 w-5">
-          <View className="w-3 h-3 rounded-full bg-primary-brandGreen border-[2px] border-primary-lightGreen" />
-          <View className="w-0.5 h-10 border-l-[1.5px] border-dashed border-gray-200 my-1" />
-          <View className="w-3 h-3 rounded-full bg-red-500 border-[2px] border-red-100" />
+      {/* Route section */}
+      <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 4 }}>
+        {/* Pickup */}
+        <View style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 8 }}>
+          <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
+            <View style={{
+              width: 12, height: 12, borderRadius: 6,
+              backgroundColor: Colors.primary.darkGreen,
+              marginTop: 3,
+            }} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 9, fontWeight: "800", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Pickup</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }} numberOfLines={1}>{pickup}</Text>
+          </View>
         </View>
 
-        {/* Addresses */}
-        <View className="flex-1 justify-between py-0.5">
-          <View>
-            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-0.5">Pickup</Text>
-            <Text className="text-gray-800 text-sm font-semibold" numberOfLines={1}>{pickup}</Text>
+        {/* Connector */}
+        <View style={{ marginLeft: 28, marginBottom: 8 }}>
+          {[0,1,2].map(i => (
+            <View key={i} style={{ width: 2, height: 5, backgroundColor: "#CBD5E1", borderRadius: 1, marginBottom: 2 }} />
+          ))}
+        </View>
+
+        {/* Dropoff */}
+        <View style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 16 }}>
+          <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
+            <View style={{
+              width: 12, height: 12, borderRadius: 6,
+              backgroundColor: "#EF4444",
+              marginTop: 3,
+            }} />
           </View>
-          <View>
-            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-0.5 mt-2">Dropoff</Text>
-            <Text className="text-gray-800 text-sm font-semibold" numberOfLines={1}>{drop}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 9, fontWeight: "800", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Dropoff</Text>
+            <Text style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }} numberOfLines={1}>{drop}</Text>
           </View>
         </View>
       </View>
 
-      {/* Footer */}
-      <View className="flex-row items-center justify-between pt-1">
-        <View className="flex-row items-center bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-          <Feather name="map-pin" size={12} color="#6B7280" />
-          <Text className="text-gray-500 text-xs font-bold ml-1.5">{distance}</Text>
-        </View>
-        
+      {/* CTA Button */}
+      <View style={{ paddingHorizontal: 18, paddingBottom: 16 }}>
         <TouchableOpacity
           onPress={onPress}
-          activeOpacity={0.8}
-          className="bg-primary-darkGreen px-6 py-3 rounded-xl flex-row items-center shadow-sm"
+          activeOpacity={0.85}
+          style={{
+            flexDirection: "row", alignItems: "center", justifyContent: "center",
+            backgroundColor: "#F0FDF4",
+            borderWidth: 1.5, borderColor: Colors.primary.darkGreen,
+            paddingVertical: 12, borderRadius: 16,
+            gap: 8,
+          }}
         >
-          <Text className="text-white font-extrabold text-xs mr-2 tracking-wide">View Details</Text>
-          <Feather name="arrow-right" size={14} color="white" />
+          <Feather name="eye" size={15} color={Colors.primary.darkGreen} />
+          <Text style={{ color: Colors.primary.darkGreen, fontWeight: "800", fontSize: 13 }}>View Order Details</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+
 }
 
 /* ─── Home Banner ────────────────────────────────────────────────────── */

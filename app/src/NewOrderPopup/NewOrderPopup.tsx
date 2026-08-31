@@ -1,5 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +9,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    Vibration,
     View,
 } from "react-native";
 import { Colors } from "../../../src/constants/Colors";
@@ -61,9 +61,7 @@ export default function NewOrderPopup() {
       if (nextOrder) {
         setPopupOrder(nextOrder);
         setShowPopup(true);
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success,
-        );
+        Vibration.vibrate([0, 200, 100, 200]); // buzz pattern to alert driver
       }
     } catch (error) {
       console.log("Error fetching available orders:", error);
