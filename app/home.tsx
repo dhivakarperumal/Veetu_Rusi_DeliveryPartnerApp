@@ -558,7 +558,7 @@ function HomeBanner() {
     <View className="mb-2 w-full">
       <View
         className="overflow-hidden px-7 py-6"
-        style={{ width: CARD_WIDTH, backgroundColor: banner.bg[0] }}
+        style={{ width: CARD_WIDTH, backgroundColor: Colors.primary.darkGreen }}
       >
         <View className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
         <View className="absolute right-8 -bottom-12 h-24 w-24 rounded-full bg-white/5" />
