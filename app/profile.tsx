@@ -159,11 +159,12 @@ export default function Profile() {
               />
 
               <TouchableOpacity
-                className="flex-row items-center py-4 px-2 mt-2"
+                className="mt-4 flex-row items-center justify-center rounded-2xl border border-red-100 bg-red-50 px-4 py-4"
                 onPress={handleLogout}
+                activeOpacity={0.8}
               >
-                <Feather name="log-out" size={22} color={Colors.status.error} />
-                <Text className="ml-4 text-status-error font-semibold text-[15px]">
+                <Feather name="log-out" size={20} color={Colors.status.error} />
+                <Text className="ml-3 text-[15px] font-bold text-red-600">
                   Logout
                 </Text>
               </TouchableOpacity>
