@@ -1,9 +1,8 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   RefreshControl,
   ScrollView,
   Text,
@@ -120,15 +119,22 @@ export default function Home() {
           />
         }
       >
-        <View className="px-2 pt-6">
-          
+        {/* ── Promotional Banner (Attached to Top) ──────────────── */}
+        <HomeBanner />
 
-         
+        <View className="px-5 pt-5">
+          <View className="flex-row items-center justify-between mb-5">
+            <View>
+              <Text className="text-gray-500 text-xs font-medium">Your delivery desk</Text>
+              <Text className="text-2xl font-extrabold text-gray-900 mt-1">Today's pulse</Text>
+            </View>
+            <View className="flex-row items-center bg-primary-lightGreen px-3 py-2 rounded-full">
+              <View className="w-2 h-2 rounded-full bg-primary-brandGreen mr-2" />
+              <Text className="text-primary-brandGreen text-xs font-bold">Live</Text>
+            </View>
+          </View>
 
-          {/* ── Promotional Banner ──────────────────────────────── */}
-          <HomeBanner />
-
-           <View className="bg-primary-darkGreen rounded-3xl p-5 mt-3 overflow-hidden">
+          <View className="bg-primary-darkGreen rounded-3xl p-5 overflow-hidden">
             <View className="flex-row justify-between items-start">
               <View className="flex-1">
                 <Text className="text-white/70 text-xs font-semibold uppercase tracking-widest">
@@ -148,9 +154,7 @@ export default function Home() {
             </View>
             <View className="flex-row items-center mt-6">
               <Ionicons name="location-outline" size={15} color="#D7E8C5" />
-              <Text className="text-white/80 text-xs ml-2">
-                Anna Nagar, Chennai
-              </Text>
+              <Text className="text-white/80 text-xs ml-2">Anna Nagar, Chennai</Text>
               <TouchableOpacity
                 onPress={() => router.push("/orders")}
                 className="ml-auto flex-row items-center"
@@ -442,53 +446,61 @@ function QuickAction({
 function OrderCard({ order, onPress }: { order: any; onPress: () => void }) {
   const id = order.order_id || `#${order.id}`;
   const price = Number(order.total_amount || 0).toFixed(2);
-  const pickup =
-    order.pickup_address || order.restaurant_address || "Restaurant address";
-  const drop =
-    order.delivery_address || order.street_address || "Customer address";
-  const distance = order.distance
-    ? `${order.distance} km`
-    : "Distance unavailable";
-  const time = order.estimated_time
-    ? `${order.estimated_time} mins`
-    : "New order";
-
+  const pickup = order.pickup_address || order.restaurant_address || "Restaurant Address";
+  const drop = order.delivery_address || order.street_address || "Customer Address";
+  const distance = order.distance ? `${order.distance} km` : "Est. distance unavailable";
+  
   return (
-    <View className="bg-white rounded-3xl p-4 shadow-sm border border-gray-50 mb-4">
-      <View className="flex-row justify-between items-center mb-4">
-        <Text className="font-bold text-black text-base">{id}</Text>
-        <View className="bg-primary-lightGreen px-3 py-1 rounded-lg">
-          <Text className="text-primary-brandGreen font-bold">₹{price}</Text>
+    <View className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-4" style={{ elevation: 2 }}>
+      {/* Header */}
+      <View className="flex-row justify-between items-center mb-5 pb-4 border-b border-gray-50">
+        <View>
+          <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Order ID</Text>
+          <Text className="font-extrabold text-gray-900 text-base">{id}</Text>
+        </View>
+        <View className="bg-primary-lightGreen px-4 py-2 rounded-xl">
+          <Text className="text-primary-brandGreen font-extrabold text-sm">₹{price}</Text>
         </View>
       </View>
 
-      <View className="flex-row items-center mb-3">
-        <View className="w-3 h-3 rounded-full bg-primary-brandGreen border-[3px] border-primary-lightGreen" />
-        <Text className="text-gray-500 text-xs ml-3 font-medium">
-          {distance} • {time}
-        </Text>
-      </View>
-
-      <View className="flex-row items-center mb-2">
-        <View className="w-2.5 h-2.5 rounded-full bg-red-500 ml-[1px]" />
-        <Text className="text-gray-600 text-sm ml-3.5">{pickup}</Text>
-      </View>
-
-      <View className="flex-row items-center justify-between mt-2">
-        <View className="flex-row items-center">
-          <View className="w-2.5 h-2.5 rounded-full bg-red-500 ml-[1px]" />
-          <Text className="text-gray-600 text-sm ml-3.5">{drop}</Text>
+      {/* Timeline Section */}
+      <View className="flex-row mb-5">
+        {/* Timeline Graphic */}
+        <View className="items-center mr-4 w-5">
+          <View className="w-3 h-3 rounded-full bg-primary-brandGreen border-[2px] border-primary-lightGreen" />
+          <View className="w-0.5 h-10 border-l-[1.5px] border-dashed border-gray-200 my-1" />
+          <View className="w-3 h-3 rounded-full bg-red-500 border-[2px] border-red-100" />
         </View>
+
+        {/* Addresses */}
+        <View className="flex-1 justify-between py-0.5">
+          <View>
+            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-0.5">Pickup</Text>
+            <Text className="text-gray-800 text-sm font-semibold" numberOfLines={1}>{pickup}</Text>
+          </View>
+          <View>
+            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-0.5 mt-2">Dropoff</Text>
+            <Text className="text-gray-800 text-sm font-semibold" numberOfLines={1}>{drop}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Footer */}
+      <View className="flex-row items-center justify-between pt-1">
+        <View className="flex-row items-center bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+          <Feather name="map-pin" size={12} color="#6B7280" />
+          <Text className="text-gray-500 text-xs font-bold ml-1.5">{distance}</Text>
+        </View>
+        
         <TouchableOpacity
           onPress={onPress}
-          className="bg-primary-darkGreen px-6 py-2.5 rounded-xl"
+          activeOpacity={0.8}
+          className="bg-primary-darkGreen px-6 py-3 rounded-xl flex-row items-center shadow-sm"
         >
-          <Text className="text-white font-bold text-sm">View Order</Text>
+          <Text className="text-white font-extrabold text-xs mr-2 tracking-wide">View Details</Text>
+          <Feather name="arrow-right" size={14} color="white" />
         </TouchableOpacity>
       </View>
-
-      {/* Dashed line connecting dots */}
-      <View className="absolute left-[21px] top-[74px] w-0.5 h-8 border-l border-dashed border-gray-300" />
     </View>
   );
 }
@@ -540,126 +552,49 @@ const BANNERS = [
 function HomeBanner() {
   const { width } = useWindowDimensions();
   const CARD_WIDTH = width;
-  const scrollRef = useRef<ScrollView>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const scrollToIndex = useCallback(
-    (index: number) => {
-      const nextIndex = (index + BANNERS.length) % BANNERS.length;
-      scrollRef.current?.scrollTo({
-        x: nextIndex * CARD_WIDTH,
-        animated: true,
-      });
-      setActiveIndex(nextIndex);
-    },
-    [CARD_WIDTH],
-  );
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % BANNERS.length;
-        scrollRef.current?.scrollTo({
-          x: next * CARD_WIDTH,
-          animated: true,
-        });
-        return next;
-      });
-    }, 3500);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [CARD_WIDTH]);
-
-  const handleScroll = (event: any) => {
-    const nextIndex = Math.round(
-      event.nativeEvent.contentOffset.x / CARD_WIDTH,
-    );
-    if (nextIndex !== activeIndex) {
-      setActiveIndex(nextIndex);
-    }
-  };
+  const banner = BANNERS[0]; // Just use the first banner
 
   return (
-    <View className="mt-5 -mx-6">
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
-        scrollEventThrottle={16}
-        className="w-full"
-        contentContainerStyle={{ width: CARD_WIDTH * BANNERS.length }}
+    <View className="mb-2 w-full">
+      <View
+        className="overflow-hidden px-7 py-6"
+        style={{ width: CARD_WIDTH, backgroundColor: banner.bg[0] }}
       >
-        {BANNERS.map((banner) => (
-          <View
-            key={banner.id}
-            className="overflow-hidden px-7 py-6"
-            style={{ width: CARD_WIDTH, backgroundColor: banner.bg[0] }}
-          >
-            <View className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
-            <View className="absolute right-8 -bottom-12 h-24 w-24 rounded-full bg-white/5" />
+        <View className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
+        <View className="absolute right-8 -bottom-12 h-24 w-24 rounded-full bg-white/5" />
 
-            <View className="mb-4 self-start rounded-full border border-white/20 bg-white/10 px-2.5 py-1">
-              <Text className="text-[9px] font-extrabold uppercase tracking-[1.2px]" style={{ color: banner.accent }}>
-                {banner.tag}
-              </Text>
-            </View>
+        <View className="mb-4 self-start rounded-full border border-white/20 bg-white/10 px-2.5 py-1">
+          <Text className="text-[9px] font-extrabold uppercase tracking-[1.2px]" style={{ color: banner.accent }}>
+            {banner.tag}
+          </Text>
+        </View>
 
-            <View className="flex-row items-start justify-between">
-              <View className="mr-3 flex-1">
-                <Text className="mb-1.5 text-lg font-black text-white" style={{ lineHeight: 24 }}>
-                  {banner.title}
-                </Text>
-                <Text className="text-xs font-medium text-white/75" style={{ lineHeight: 18 }}>
-                  {banner.subtitle}
-                </Text>
-              </View>
-              <Text className="text-4xl">{banner.emoji}</Text>
-            </View>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              className="mt-5 flex-row items-center self-start rounded-xl border border-white/25 bg-white/15 px-4 py-2"
-            >
-              <Text className="text-xs font-extrabold text-white">
-                Learn more
-              </Text>
-              <Feather
-                name="arrow-right"
-                size={13}
-                color="white"
-                style={{ marginLeft: 6 }}
-              />
-            </TouchableOpacity>
+        <View className="flex-row items-start justify-between">
+          <View className="mr-3 flex-1">
+            <Text className="mb-1.5 text-lg font-black text-white" style={{ lineHeight: 24 }}>
+              {banner.title}
+            </Text>
+            <Text className="text-xs font-medium text-white/75" style={{ lineHeight: 18 }}>
+              {banner.subtitle}
+            </Text>
           </View>
-        ))}
-      </ScrollView>
+          <Text className="text-4xl">{banner.emoji}</Text>
+        </View>
 
-      <View className="mt-3 flex-row items-center justify-center">
-        {BANNERS.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => scrollToIndex(index)}
-            activeOpacity={0.8}
-            className="mx-1"
-          >
-            <View
-              style={{
-                width: index === activeIndex ? 20 : 6,
-                height: 6,
-                borderRadius: 999,
-                backgroundColor:
-                  index === activeIndex ? Colors.primary.darkGreen : "#CBD5E1",
-              }}
-            />
-          </TouchableOpacity>
-        ))}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          className="mt-5 flex-row items-center self-start rounded-xl border border-white/25 bg-white/15 px-4 py-2"
+        >
+          <Text className="text-xs font-extrabold text-white">
+            Learn more
+          </Text>
+          <Feather
+            name="arrow-right"
+            size={13}
+            color="white"
+            style={{ marginLeft: 6 }}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
