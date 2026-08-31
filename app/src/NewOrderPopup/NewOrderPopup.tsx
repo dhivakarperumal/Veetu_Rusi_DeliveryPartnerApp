@@ -1,8 +1,8 @@
 import { Feather } from "@expo/vector-icons";
-import { Audio } from "expo-av";
+import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -17,6 +17,7 @@ import {
     assignOrder,
     cancelOrder,
     getAvailableOrders,
+    getStoredToken,
     getStoredUser,
 } from "../../api";
 
@@ -33,54 +34,54 @@ export default function NewOrderPopup() {
   const [rejecting, setRejecting] = useState(false);
 
   const router = useRouter();
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const requestInFlight = useRef(false);
 
-  // Play notification sound
-  const playSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/notification.mp3"), // Make sure to add a sound file or ignore if not present.  We'll use a generic approach.
-      );
-      soundRef.current = sound;
-      await sound.playAsync();
-    } catch (e) {
-      console.log("Error playing sound", e);
-    }
-  };
-
-  const fetchPendingOrders = async () => {
-    if (showPopup || showRejectModal) return; // Don't fetch if currently showing a popup
+  const fetchPendingOrders = useCallback(async () => {
+    if (showPopup || showRejectModal || requestInFlight.current) return;
+    requestInFlight.current = true;
 
     try {
+      if (!(await getStoredToken())) return;
+
       const response = await getAvailableOrders();
       const allOrders = Array.isArray(response)
         ? response
         : response?.orders || [];
 
       const pendingOrders = allOrders.filter(
-        (o: any) => o.status === "Searching Delivery Partner",
+        (order: any) =>
+          normalizeStatus(order) === "searching delivery partner" ||
+          normalizeStatus(order) === "searching_delivery_partner",
       );
 
-      // Find the first order that hasn't been shown yet
       const nextOrder = pendingOrders.find(
-        (o: any) => !shownOrderIds.has(o.id),
+        (order: any) => !shownOrderIds.has(getOrderId(order)),
       );
 
       if (nextOrder) {
         setPopupOrder(nextOrder);
         setShowPopup(true);
-        // playSound(); // Uncomment if sound file is added
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        );
       }
     } catch (error) {
       console.log("Error fetching available orders:", error);
+    } finally {
+      requestInFlight.current = false;
     }
-  };
+  }, [showPopup, showRejectModal, shownOrderIds]);
 
   useEffect(() => {
     fetchPendingOrders();
-    const interval = setInterval(fetchPendingOrders, 9000);
-    return () => clearInterval(interval);
-  }, [shownOrderIds, showPopup, showRejectModal]);
+    const interval = setInterval(() => {
+      fetchPendingOrders();
+    }, 9000);
+    return () => {
+      clearInterval(interval);
+      requestInFlight.current = false;
+    };
+  }, [fetchPendingOrders]);
 
   const handleSkipOrder = () => {
     setShowPopup(false);
@@ -89,7 +90,7 @@ export default function NewOrderPopup() {
 
   const handleNextOrder = () => {
     if (popupOrder) {
-      setShownOrderIds((prev) => new Set(prev).add(popupOrder.id));
+      setShownOrderIds((prev) => new Set(prev).add(getOrderId(popupOrder)));
     }
     setShowPopup(false);
   };
@@ -129,9 +130,9 @@ export default function NewOrderPopup() {
             : "Unknown Location",
       };
 
-      await assignOrder(popupOrder.id, payload);
+      await assignOrder(getOrderId(popupOrder), payload);
 
-      setShownOrderIds((prev) => new Set(prev).add(popupOrder.id));
+      setShownOrderIds((prev) => new Set(prev).add(getOrderId(popupOrder)));
       setShowPopup(false);
       Alert.alert("Success", "Order accepted successfully!");
       router.push("/orders");
@@ -152,8 +153,8 @@ export default function NewOrderPopup() {
 
     setRejecting(true);
     try {
-      await cancelOrder(popupOrder.id, rejectReason, rejectNotes);
-      setShownOrderIds((prev) => new Set(prev).add(popupOrder.id));
+      await cancelOrder(getOrderId(popupOrder), rejectReason, rejectNotes);
+      setShownOrderIds((prev) => new Set(prev).add(getOrderId(popupOrder)));
       setShowRejectModal(false);
       setRejectReason("");
       setRejectNotes("");
@@ -325,7 +326,7 @@ export default function NewOrderPopup() {
                 </Text>
               </View>
               <Text className="text-sm text-gray-600 font-medium">
-                Please let us know why you're skipping this order.
+                Please let us know why you&apos;re skipping this order.
               </Text>
             </View>
 
@@ -395,4 +396,15 @@ export default function NewOrderPopup() {
       </Modal>
     </>
   );
+}
+
+function normalizeStatus(order: any) {
+  return String(order.status || order.order_status || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-_]+/g, " ");
+}
+
+function getOrderId(order: any) {
+  return order.id ?? order.order_id;
 }

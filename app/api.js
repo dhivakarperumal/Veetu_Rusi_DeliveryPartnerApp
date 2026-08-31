@@ -2,7 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.4:5000/api";
+  process.env.EXPO_PUBLIC_API_URL || "https://veeturusi.qtechx.com/api"; 
+  // process.env.EXPO_PUBLIC_API_URL || "http:// 192.168.1.6:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -38,14 +39,14 @@ export async function getStoredUser() {
 }
 
 api.interceptors.request.use(async (config) => {
-  const storageToken = await AsyncStorage.getItem("userToken");
-  const activeToken = storageToken || cachedToken;
+  const activeToken = await getStoredToken();
 
   if (activeToken) {
     cachedToken = activeToken;
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${activeToken}`;
   } else {
-    delete config.headers.Authorization;
+    delete config.headers?.Authorization;
   }
 
   return config;
@@ -90,17 +91,23 @@ export async function loginWithIdentifier(identifier, password) {
     password: String(password || ""),
   });
 
-  const { token, user, message } = response.data || {};
+  const { token, accessToken, access_token, user, message } =
+    response.data || {};
+  const authToken = token || accessToken || access_token;
 
-  if (token) {
-    await setAuthToken(token);
+  if (authToken) {
+    await setAuthToken(authToken);
   }
 
   if (user) {
     await AsyncStorage.setItem("userProfile", JSON.stringify(user));
   }
 
-  return { ...response.data, message: message || "Login successful" };
+  return {
+    ...response.data,
+    token: authToken,
+    message: message || "Login successful",
+  };
 }
 
 export async function getMyOrders(status = "All") {

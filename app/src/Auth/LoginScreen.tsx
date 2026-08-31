@@ -3,17 +3,17 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    ActivityIndicator,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import { getStoredToken, loginWithIdentifier } from "../../api";
 
@@ -93,7 +93,13 @@ export default function LoginScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, alignItems: "center", paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: "center",
+            paddingTop: 60,
+            paddingBottom: 40,
+            paddingHorizontal: 20,
+          }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces={false}
@@ -113,7 +119,8 @@ export default function LoginScreen() {
               Welcome Back!
             </Text>
             <Text className="text-sm text-gray-500 text-center leading-5">
-              Login to access your delivery dashboard{"\n"}and start earning today.
+              Login to access your delivery dashboard{"\n"}and start earning
+              today.
             </Text>
           </View>
 
@@ -122,20 +129,30 @@ export default function LoginScreen() {
             {/* Card Header */}
             <View className="flex-row items-center mb-6">
               <View className="w-12 h-12 rounded-xl bg-primary-lightGreen items-center justify-center mr-3">
-                <MaterialCommunityIcons name="bike-fast" size={26} color="#304B26" />
+                <MaterialCommunityIcons
+                  name="bike-fast"
+                  size={26}
+                  color="#304B26"
+                />
               </View>
               <View>
                 <Text className="text-lg font-bold text-primary-darkGreen mb-0.5">
                   Delivery Partner Login
                 </Text>
-                <Text className="text-xs text-gray-500">Please sign in to continue</Text>
+                <Text className="text-xs text-gray-500">
+                  Please sign in to continue
+                </Text>
               </View>
             </View>
 
             {/* Error Message */}
             {!!error && (
               <View className="flex-row items-center mb-4 bg-status-errorLight p-2.5 rounded-xl">
-                <Ionicons name="alert-circle-outline" size={14} color="#D32F2F" />
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={14}
+                  color="#D32F2F"
+                />
                 <Text className="text-[13px] text-status-error ml-1.5 flex-1">
                   {error}
                 </Text>
@@ -149,7 +166,9 @@ export default function LoginScreen() {
               </Text>
               <View
                 className={`flex-row items-center border rounded-xl h-[52px] px-3 bg-[#FAFAFA] ${
-                  error ? "border-status-error bg-status-errorLight" : "border-gray-200"
+                  error
+                    ? "border-status-error bg-status-errorLight"
+                    : "border-gray-200"
                 }`}
               >
                 <Ionicons name="mail-outline" size={20} color="#9CA3AF" />
@@ -164,7 +183,14 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  style={{ flex: 1, fontSize: 15, color: "#1A1A1A", height: "100%", paddingVertical: 0, marginLeft: 8 }}
+                  style={{
+                    flex: 1,
+                    fontSize: 15,
+                    color: "#1A1A1A",
+                    height: "100%",
+                    paddingVertical: 0,
+                    marginLeft: 8,
+                  }}
                   maxLength={100}
                   returnKeyType="next"
                   onSubmitEditing={() => passwordRef.current?.focus()}
@@ -179,10 +205,16 @@ export default function LoginScreen() {
               </Text>
               <View
                 className={`flex-row items-center border rounded-xl h-[52px] px-3 bg-[#FAFAFA] ${
-                  error ? "border-status-error bg-status-errorLight" : "border-gray-200"
+                  error
+                    ? "border-status-error bg-status-errorLight"
+                    : "border-gray-200"
                 }`}
               >
-                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" />
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#9CA3AF"
+                />
                 <TextInput
                   ref={passwordRef}
                   value={password}
@@ -193,11 +225,21 @@ export default function LoginScreen() {
                   placeholder="Enter your password"
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPass}
-                  style={{ flex: 1, fontSize: 15, color: "#1A1A1A", height: "100%", paddingVertical: 0, marginLeft: 8 }}
+                  style={{
+                    flex: 1,
+                    fontSize: 15,
+                    color: "#1A1A1A",
+                    height: "100%",
+                    paddingVertical: 0,
+                    marginLeft: 8,
+                  }}
                   returnKeyType="done"
                   onSubmitEditing={handleLogin}
                 />
-                <TouchableOpacity onPress={() => setShowPass(!showPass)} className="p-1">
+                <TouchableOpacity
+                  onPress={() => setShowPass(!showPass)}
+                  className="p-1"
+                >
                   <Ionicons
                     name={showPass ? "eye-outline" : "eye-off-outline"}
                     size={20}
@@ -241,7 +283,9 @@ export default function LoginScreen() {
             {/* Divider */}
             <View className="flex-row items-center my-5">
               <View className="flex-1 h-px bg-gray-200" />
-              <Text className="mx-3 text-[13px] text-gray-400">or login with</Text>
+              <Text className="mx-3 text-[13px] text-gray-400">
+                or login with
+              </Text>
               <View className="flex-1 h-px bg-gray-200" />
             </View>
 
@@ -268,7 +312,12 @@ export default function LoginScreen() {
           {/* Footer */}
           <View className="w-full items-center mt-2">
             <View className="flex-row items-center justify-between w-full mb-5 px-2.5">
-              <MaterialCommunityIcons name="bike" size={36} color="#304B26" style={{ opacity: 0.5 }} />
+              <MaterialCommunityIcons
+                name="bike"
+                size={36}
+                color="#304B26"
+                style={{ opacity: 0.5 }}
+              />
               <View className="flex-1 items-center px-4">
                 <Text className="text-[15px] font-bold text-primary-darkGreen mb-1 text-center">
                   Deliver fast. Earn more.
@@ -277,12 +326,19 @@ export default function LoginScreen() {
                   Manage your orders and earnings{"\n"}all in one place.
                 </Text>
               </View>
-              <MaterialCommunityIcons name="map-marker-path" size={36} color="#304B26" style={{ opacity: 0.5 }} />
+              <MaterialCommunityIcons
+                name="map-marker-path"
+                size={36}
+                color="#304B26"
+                style={{ opacity: 0.5 }}
+              />
             </View>
 
             <Text className="text-sm text-gray-500">
               Don't have an account?{" "}
-              <Text className="text-accent-orange font-bold">Contact Admin</Text>
+              <Text className="text-accent-orange font-bold">
+                Contact Admin
+              </Text>
             </Text>
           </View>
         </ScrollView>

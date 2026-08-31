@@ -1,22 +1,58 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {
     SafeAreaView,
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
+import { updateOrderStatus } from "./api";
 
 export default function TrackOrder() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ orderId?: string; status?: string }>();
+  const [currentStatus, setCurrentStatus] = useState(
+    params.status || "Delivery Partner Assigned",
+  );
+  const [updating, setUpdating] = useState(false);
+  const statusIndex = DELIVERY_STATUSES.indexOf(currentStatus);
+  const nextStatus =
+    statusIndex >= 0
+      ? DELIVERY_STATUSES[statusIndex + 1]
+      : DELIVERY_STATUSES[0];
+
+  const handleNextStatus = async () => {
+    if (!params.orderId || !nextStatus || updating) return;
+    setUpdating(true);
+    try {
+      await updateOrderStatus(
+        String(params.orderId).replace(/^#/, ""),
+        nextStatus,
+      );
+      setCurrentStatus(nextStatus);
+    } catch (error: any) {
+      Alert.alert(
+        "Unable to update status",
+        error?.message || "Please try again.",
+      );
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   return (
     <SafeAreaView
       className="flex-1 bg-background-main"
-      edges={["left", "right", "bottom"]}
+      edges={["top", "left", "right"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
 
@@ -29,7 +65,7 @@ export default function TrackOrder() {
           <View>
             <Text className="text-black font-bold text-lg">Track Order</Text>
             <Text className="text-gray-500 font-semibold text-sm">
-              #ORD123456
+              #{params.orderId || "ORD123456"}
             </Text>
           </View>
         </View>
@@ -109,7 +145,7 @@ export default function TrackOrder() {
             </Text>
           </View>
           <Text className="text-primary-brandGreen font-extrabold text-base">
-            15 mins
+            {currentStatus}
           </Text>
         </View>
 
@@ -149,6 +185,27 @@ export default function TrackOrder() {
           </View>
         </View>
 
+        <TouchableOpacity
+          onPress={handleNextStatus}
+          disabled={!nextStatus || updating}
+          className="bg-primary-darkGreen py-3.5 rounded-2xl flex-row items-center justify-center shadow-md mb-3"
+        >
+          {updating ? (
+            <ActivityIndicator color="white" />
+          ) : nextStatus ? (
+            <>
+              <Feather name="refresh-cw" size={17} color="white" />
+              <Text className="text-white font-bold text-sm ml-2">
+                Update to {nextStatus}
+              </Text>
+            </>
+          ) : (
+            <Text className="text-white font-bold text-sm">
+              Delivery completed
+            </Text>
+          )}
+        </TouchableOpacity>
+
         {/* Action Buttons */}
         <View
           className="flex-row justify-between space-x-4"
@@ -174,3 +231,13 @@ export default function TrackOrder() {
     </SafeAreaView>
   );
 }
+
+const DELIVERY_STATUSES = [
+  "Delivery Partner Assigned",
+  "Picked Up",
+  "Start Ride",
+  "Reached Location",
+  "Waiting for Customer",
+  "Out for Delivery",
+  "Delivered",
+];

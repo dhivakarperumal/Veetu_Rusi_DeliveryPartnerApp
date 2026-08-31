@@ -502,10 +502,32 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
     <View className="bg-white rounded-3xl shadow-sm border border-gray-50 mb-4 overflow-hidden">
       {/* Header */}
       <View className="flex-row justify-between items-center px-5 pt-5 pb-4 border-b border-gray-50">
-        <View>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/order-details",
+              params: {
+                orderId: String(order.id || order.order_id || ""),
+                status: String(order.status || "New Order"),
+                amount: String(order.total_amount || "0"),
+                pickup: String(
+                  order.pickup_address ||
+                    order.restaurant_address ||
+                    "Restaurant address",
+                ),
+                drop: String(
+                  order.delivery_address ||
+                    order.street_address ||
+                    "Customer address",
+                ),
+                payment: String(order.payment_method || "COD"),
+              },
+            })
+          }
+        >
           <Text className="font-extrabold text-black text-sm">{orderId}</Text>
           <Text className="text-gray-400 text-xs mt-0.5">{time}</Text>
-        </View>
+        </TouchableOpacity>
         <View
           className="px-3 py-1.5 rounded-full border"
           style={{ backgroundColor: style.bg, borderColor: style.border }}

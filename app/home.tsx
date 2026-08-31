@@ -1,8 +1,9 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   RefreshControl,
   ScrollView,
   Text,
@@ -119,25 +120,15 @@ export default function Home() {
           />
         }
       >
-        <View className="px-6 pt-6">
-          <View className="flex-row items-center justify-between mb-5">
-            <View>
-              <Text className="text-gray-500 text-xs font-medium">
-                Your delivery desk
-              </Text>
-              <Text className="text-2xl font-extrabold text-gray-900 mt-1">
-                Today&apos;s pulse
-              </Text>
-            </View>
-            <View className="flex-row items-center bg-primary-lightGreen px-3 py-2 rounded-full">
-              <View className="w-2 h-2 rounded-full bg-primary-brandGreen mr-2" />
-              <Text className="text-primary-brandGreen text-xs font-bold">
-                Live
-              </Text>
-            </View>
-          </View>
+        <View className="px-2 pt-6">
+          
 
-          <View className="bg-primary-darkGreen rounded-3xl p-5 overflow-hidden">
+         
+
+          {/* ── Promotional Banner ──────────────────────────────── */}
+          <HomeBanner />
+
+           <View className="bg-primary-darkGreen rounded-3xl p-5 mt-3 overflow-hidden">
             <View className="flex-row justify-between items-start">
               <View className="flex-1">
                 <Text className="text-white/70 text-xs font-semibold uppercase tracking-widest">
@@ -226,31 +217,33 @@ export default function Home() {
             />
           </View>
 
-          <View className="flex-row items-center justify-between mt-7 mb-3">
-            <Text className="text-lg font-extrabold text-gray-900">
-              Quick actions
-            </Text>
+          <View className="flex-row items-center justify-between mt-7 mb-4">
+            <Text className="text-lg font-extrabold text-gray-900">Quick Actions</Text>
           </View>
           <View className="flex-row justify-between">
             <QuickAction
-              icon="plus-circle"
-              label="New order"
-              onPress={() => router.push("/orders")}
-            />
-            <QuickAction
-              icon="navigation"
-              label="Assign"
-              onPress={() => router.push("/orders")}
-            />
-            <QuickAction
-              icon="list"
-              label="All orders"
+              icon="map"
+              label="My Routes"
+              bg="#16A34A"
               onPress={() => router.push("/orders")}
             />
             <QuickAction
               icon="bar-chart-2"
               label="Earnings"
+              bg="#9333EA"
               onPress={() => router.push("/earnings")}
+            />
+            <QuickAction
+              icon="credit-card"
+              label="Wallet"
+              bg="#2563EB"
+              onPress={() => router.push("/bank-details")}
+            />
+            <QuickAction
+              icon="headphones"
+              label="Support"
+              bg="#EA580C"
+              onPress={() => router.push("/helpsupport")}
             />
           </View>
 
@@ -290,15 +283,18 @@ export default function Home() {
               </TouchableOpacity>
             </View>
           ) : periodOrders.length > 0 ? (
-            periodOrders
-              .slice(0, 4)
-              .map((order) => (
-                <OrderCard
-                  key={order.id || order.order_id}
-                  order={order}
-                  onPress={() => router.push("/orders")}
-                />
-              ))
+            periodOrders.slice(0, 4).map((order) => (
+              <OrderCard
+                key={order.id || order.order_id}
+                order={order}
+                onPress={() =>
+                  router.push({
+                    pathname: "/order-details",
+                    params: getOrderDetailsParams(order),
+                  })
+                }
+              />
+            ))
           ) : (
             <View className="items-center py-8">
               <Text className="text-gray-400 text-sm">
@@ -320,6 +316,22 @@ export default function Home() {
 
 function normalizeStatus(order: any) {
   return String(order.status || order.order_status || "pending").toLowerCase();
+}
+
+function getOrderDetailsParams(order: any) {
+  return {
+    orderId: String(order.id || order.order_id || ""),
+    status: String(order.status || order.order_status || "New Order"),
+    amount: String(order.total_amount || order.total || order.amount || "0"),
+    pickup: String(
+      order.pickup_address || order.restaurant_address || "Restaurant address",
+    ),
+    drop: String(
+      order.delivery_address || order.street_address || "Customer address",
+    ),
+    payment: String(order.payment_method || "COD"),
+    customer: String(order.customer_name || "Customer"),
+  };
 }
 
 function isPendingStatus(order: any) {
@@ -393,23 +405,34 @@ function MetricCard({
 }
 
 function QuickAction({
-  icon,
-  label,
-  onPress,
+  icon, label, bg, onPress,
 }: {
   icon: any;
   label: string;
+  bg: string;
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} className="items-center w-[23%]">
-      <View className="bg-white border border-gray-100 rounded-2xl p-3.5">
-        <Feather name={icon} size={20} color={Colors.primary.darkGreen} />
-      </View>
-      <Text
-        className="text-gray-500 text-[10px] font-bold mt-2"
-        numberOfLines={1}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} className="items-center w-[23%]">
+      {/* Colored icon box */}
+      <View
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: 18,
+          backgroundColor: bg,
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: bg,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.35,
+          shadowRadius: 8,
+          elevation: 6,
+        }}
       >
+        <Feather name={icon} size={22} color="white" />
+      </View>
+      <Text className="text-gray-600 text-[11px] font-bold mt-2 text-center" numberOfLines={1}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -466,6 +489,178 @@ function OrderCard({ order, onPress }: { order: any; onPress: () => void }) {
 
       {/* Dashed line connecting dots */}
       <View className="absolute left-[21px] top-[74px] w-0.5 h-8 border-l border-dashed border-gray-300" />
+    </View>
+  );
+}
+
+/* ─── Home Banner ────────────────────────────────────────────────────── */
+const BANNERS = [
+  {
+    id: 1,
+    title: "Boost Your Earnings!",
+    subtitle: "Complete 10 deliveries today\nand earn a ₹150 bonus.",
+    emoji: "🚀",
+    bg: ["#1B5E20", "#2E7D32"],
+    accent: "#A5D6A7",
+    tag: "Today's Challenge",
+    tagBg: "rgba(255,255,255,0.15)",
+  },
+  {
+    id: 2,
+    title: "Peak Hour Active",
+    subtitle: "12 PM – 3 PM earns\n1.5× your base rate.",
+    emoji: "⚡",
+    bg: ["#7B1FA2", "#6A1B9A"],
+    accent: "#CE93D8",
+    tag: "Peak Hours",
+    tagBg: "rgba(255,255,255,0.15)",
+  },
+  {
+    id: 3,
+    title: "Weekend Bonus",
+    subtitle: "Extra ₹50 per order\nthis Saturday & Sunday.",
+    emoji: "🎉",
+    bg: ["#B71C1C", "#C62828"],
+    accent: "#FFAB91",
+    tag: "Weekend Special",
+    tagBg: "rgba(255,255,255,0.15)",
+  },
+  {
+    id: 4,
+    title: "Refer & Earn",
+    subtitle: "Invite a friend and get\n₹200 when they complete 5 trips.",
+    emoji: "🤝",
+    bg: ["#0277BD", "#01579B"],
+    accent: "#81D4FA",
+    tag: "Referral",
+    tagBg: "rgba(255,255,255,0.15)",
+  },
+];
+
+function HomeBanner() {
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = width;
+  const scrollRef = useRef<ScrollView>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      const nextIndex = (index + BANNERS.length) % BANNERS.length;
+      scrollRef.current?.scrollTo({
+        x: nextIndex * CARD_WIDTH,
+        animated: true,
+      });
+      setActiveIndex(nextIndex);
+    },
+    [CARD_WIDTH],
+  );
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % BANNERS.length;
+        scrollRef.current?.scrollTo({
+          x: next * CARD_WIDTH,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3500);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [CARD_WIDTH]);
+
+  const handleScroll = (event: any) => {
+    const nextIndex = Math.round(
+      event.nativeEvent.contentOffset.x / CARD_WIDTH,
+    );
+    if (nextIndex !== activeIndex) {
+      setActiveIndex(nextIndex);
+    }
+  };
+
+  return (
+    <View className="mt-5 -mx-6">
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleScroll}
+        scrollEventThrottle={16}
+        className="w-full"
+        contentContainerStyle={{ width: CARD_WIDTH * BANNERS.length }}
+      >
+        {BANNERS.map((banner) => (
+          <View
+            key={banner.id}
+            className="overflow-hidden px-7 py-6"
+            style={{ width: CARD_WIDTH, backgroundColor: banner.bg[0] }}
+          >
+            <View className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
+            <View className="absolute right-8 -bottom-12 h-24 w-24 rounded-full bg-white/5" />
+
+            <View className="mb-4 self-start rounded-full border border-white/20 bg-white/10 px-2.5 py-1">
+              <Text className="text-[9px] font-extrabold uppercase tracking-[1.2px]" style={{ color: banner.accent }}>
+                {banner.tag}
+              </Text>
+            </View>
+
+            <View className="flex-row items-start justify-between">
+              <View className="mr-3 flex-1">
+                <Text className="mb-1.5 text-lg font-black text-white" style={{ lineHeight: 24 }}>
+                  {banner.title}
+                </Text>
+                <Text className="text-xs font-medium text-white/75" style={{ lineHeight: 18 }}>
+                  {banner.subtitle}
+                </Text>
+              </View>
+              <Text className="text-4xl">{banner.emoji}</Text>
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="mt-5 flex-row items-center self-start rounded-xl border border-white/25 bg-white/15 px-4 py-2"
+            >
+              <Text className="text-xs font-extrabold text-white">
+                Learn more
+              </Text>
+              <Feather
+                name="arrow-right"
+                size={13}
+                color="white"
+                style={{ marginLeft: 6 }}
+              />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+
+      <View className="mt-3 flex-row items-center justify-center">
+        {BANNERS.map((_, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => scrollToIndex(index)}
+            activeOpacity={0.8}
+            className="mx-1"
+          >
+            <View
+              style={{
+                width: index === activeIndex ? 20 : 6,
+                height: 6,
+                borderRadius: 999,
+                backgroundColor:
+                  index === activeIndex ? Colors.primary.darkGreen : "#CBD5E1",
+              }}
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 }

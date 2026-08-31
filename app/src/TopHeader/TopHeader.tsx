@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../../src/constants/Colors";
-import { getStoredUser, logoutUser } from "../../api";
+import { getMyOrders, getStoredUser, logoutUser } from "../../api";
 
 type TopHeaderProps = {
   title?: string;
@@ -25,6 +25,8 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
   const [userName, setUserName] = useState("User");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
+  const [assignedOrders, setAssignedOrders] = useState<any[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   // Load logged-in user from storage
   useEffect(() => {
@@ -37,6 +39,30 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       }
     };
     loadUser();
+  }, []);
+
+  const loadAssignedOrders = async () => {
+    setLoadingNotifications(true);
+    try {
+      const response = await getMyOrders("All");
+      const orders = Array.isArray(response)
+        ? response
+        : response?.orders || [];
+      setAssignedOrders(
+        orders.filter((order: any) => isToday(order) && isAssignedOrder(order)),
+      );
+    } catch (error) {
+      console.log("Error loading assigned order notifications:", error);
+      setAssignedOrders([]);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAssignedOrders();
+    const interval = setInterval(loadAssignedOrders, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const firstLetter = userName.charAt(0).toUpperCase();
@@ -97,9 +123,20 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
         <View className="flex-row items-center">
           {/* Notifications */}
           <View>
-            <TouchableOpacity onPress={() => setShowNotifMenu(true)}>
+            <TouchableOpacity
+              onPress={() => {
+                setShowNotifMenu(true);
+                loadAssignedOrders();
+              }}
+            >
               <Feather name="bell" size={24} color="white" />
-              <View className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-400 rounded-full border-2 border-primary-darkGreen" />
+              {assignedOrders.length > 0 && (
+                <View className="absolute -top-1 -right-2 min-w-4 h-4 px-1 bg-red-500 rounded-full border-2 border-primary-darkGreen items-center justify-center">
+                  <Text className="text-white text-[9px] font-bold">
+                    {assignedOrders.length > 9 ? "9+" : assignedOrders.length}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
 
             {/* Notifications Dropdown */}
@@ -112,22 +149,45 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
                   <Text className="font-bold text-black mb-2">
                     Notifications
                   </Text>
-                  <View className="py-2 border-b border-gray-50">
-                    <Text className="text-sm font-medium text-black">
-                      New Order Alert
+                  {loadingNotifications ? (
+                    <Text className="text-xs text-gray-500 py-3">
+                      Loading assigned orders...
                     </Text>
-                    <Text className="text-xs text-gray-500 mt-1">
-                      Order #12345 is ready for pickup
+                  ) : assignedOrders.length === 0 ? (
+                    <Text className="text-xs text-gray-500 py-3">
+                      No assigned orders today.
                     </Text>
-                  </View>
-                  <View className="py-2">
-                    <Text className="text-sm font-medium text-black">
-                      Earnings Updated
-                    </Text>
-                    <Text className="text-xs text-gray-500 mt-1">
-                      You earned ₹150 for your last trip.
-                    </Text>
-                  </View>
+                  ) : (
+                    assignedOrders.map((order) => (
+                      <TouchableOpacity
+                        key={getOrderId(order)}
+                        className="py-2 border-b border-gray-50"
+                        onPress={() => {
+                          setShowNotifMenu(false);
+                          router.push({
+                            pathname: "/order-details",
+                            params: {
+                              orderId: String(getOrderId(order)),
+                              status: String(
+                                order.status ||
+                                  order.order_status ||
+                                  "Delivery Partner Assigned",
+                              ),
+                            },
+                          });
+                        }}
+                      >
+                        <Text className="text-sm font-medium text-black">
+                          Order #{getOrderId(order)} assigned
+                        </Text>
+                        <Text className="text-xs text-gray-500 mt-1">
+                          {order.delivery_address ||
+                            order.street_address ||
+                            "Open order details"}
+                        </Text>
+                      </TouchableOpacity>
+                    ))
+                  )}
                 </View>
               </Pressable>
             </Modal>
@@ -196,4 +256,29 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       </View>
     </View>
   );
+}
+
+function getOrderId(order: any) {
+  return order.id ?? order.order_id;
+}
+
+function isAssignedOrder(order: any) {
+  const status = String(order.status || order.order_status || "")
+    .toLowerCase()
+    .replace(/[-_]+/g, " ");
+  return status === "delivery partner assigned";
+}
+
+function isToday(order: any) {
+  const value =
+    order.assigned_at ||
+    order.assignedAt ||
+    order.updated_at ||
+    order.created_at ||
+    order.order_date ||
+    order.createdAt;
+  if (!value) return false;
+  const date = new Date(value);
+  const today = new Date();
+  return date.toDateString() === today.toDateString();
 }
