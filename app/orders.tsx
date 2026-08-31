@@ -2,14 +2,15 @@ import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -171,6 +172,7 @@ function UpdateStatusModal({
           {allowedStatuses.map((s) => {
             const isSelected = selectedStatus === s;
             const isCurrent = order?.status === s;
+            const currentStyle = STATUS_STYLE[order?.status || "New Order"];
             return (
               <TouchableOpacity
                 key={s}
@@ -192,8 +194,17 @@ function UpdateStatusModal({
                 </View>
                 <View className="flex-row items-center gap-2">
                   {isCurrent && !isSelected && (
-                    <View className="bg-gray-200 px-2 py-0.5 rounded-full mr-2">
-                      <Text className="text-gray-500 text-[9px] font-black uppercase">
+                    <View
+                      className="px-2 py-0.5 rounded-full mr-2 border"
+                      style={{
+                        backgroundColor: currentStyle.bg,
+                        borderColor: currentStyle.border,
+                      }}
+                    >
+                      <Text
+                        className="text-[9px] font-black uppercase"
+                        style={{ color: currentStyle.text }}
+                      >
                         Current
                       </Text>
                     </View>
@@ -304,6 +315,7 @@ const FILTER_TABS = [
 /* ─── Main Orders Screen ───────────────────────────────────────────────── */
 export default function Orders() {
   const [activeStatus, setActiveStatus] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -333,10 +345,19 @@ export default function Orders() {
     fetchOrders();
   };
 
-  const filteredOrders =
-    activeStatus === "All"
-      ? orders
-      : orders.filter((o) => o.status === activeStatus);
+  const filteredOrders = orders.filter((o) => {
+    const matchesStatus = activeStatus === "All" || o.status === activeStatus;
+    const searchLower = searchQuery.toLowerCase();
+    const id = String(o.id || o.order_id || "");
+    const customer = String(o.customer_name || "").toLowerCase();
+    const phone = String(o.customer_phone || "").toLowerCase();
+    const matchesSearch =
+      !searchLower ||
+      id.includes(searchLower) ||
+      customer.includes(searchLower) ||
+      phone.includes(searchLower);
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <SafeAreaView
@@ -356,6 +377,32 @@ export default function Orders() {
         />
       )}
 
+      {/* Search Bar */}
+      <View className="px-6 pt-4 pb-2">
+        <View
+          className="flex-row items-center bg-white rounded-2xl px-4 py-3 border border-gray-200 shadow-sm"
+          style={{ elevation: 2 }}
+        >
+          <Feather name="search" size={18} color="#94A3B8" />
+          <TextInput
+            className="flex-1 ml-3 text-sm text-gray-800 font-semibold"
+            placeholder="Search by Order ID, Name, or Phone..."
+            placeholderTextColor="#94A3B8"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              activeOpacity={0.7}
+            >
+              <Feather name="x-circle" size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       {/* Scrollable Status Filter Chips */}
       <ScrollView
         horizontal
@@ -366,7 +413,7 @@ export default function Orders() {
           paddingVertical: 4,
           alignItems: "center",
         }}
-        className="mt-3 mb-3"
+        className="mb-3"
       >
         {FILTER_TABS.map((tab) => {
           const isActive = activeStatus === tab.status;
@@ -499,113 +546,195 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
     status !== "Cancelled";
 
   return (
-    <View className="bg-white rounded-3xl shadow-sm border border-gray-50 mb-4 overflow-hidden">
-      {/* Header */}
-      <View className="flex-row justify-between items-center px-5 pt-5 pb-4 border-b border-gray-50">
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "/order-details",
-              params: {
-                orderId: String(order.id || order.order_id || ""),
-                status: String(order.status || "New Order"),
-                amount: String(order.total_amount || "0"),
-                pickup: String(
-                  order.pickup_address ||
-                    order.restaurant_address ||
-                    "Restaurant address",
-                ),
-                drop: String(
-                  order.delivery_address ||
-                    order.street_address ||
-                    "Customer address",
-                ),
-                payment: String(order.payment_method || "COD"),
-              },
-            })
-          }
-        >
-          <Text className="font-extrabold text-black text-sm">{orderId}</Text>
-          <Text className="text-gray-400 text-xs mt-0.5">{time}</Text>
-        </TouchableOpacity>
-        <View
-          className="px-3 py-1.5 rounded-full border"
-          style={{ backgroundColor: style.bg, borderColor: style.border }}
-        >
-          <Text
-            style={{ color: style.text }}
-            className="font-extrabold text-[9px] uppercase tracking-widest"
+    <View
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        marginBottom: 14,
+        borderWidth: 1.5,
+        borderColor: "#E2E8F0",
+        elevation: 4,
+        shadowColor: Colors.primary.darkGreen,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        overflow: "hidden",
+      }}
+    >
+      {/* Header — dark green bg */}
+      <View
+        style={{
+          backgroundColor: Colors.primary.darkGreen,
+          paddingHorizontal: 18,
+          paddingVertical: 14,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              backgroundColor: "rgba(255,255,255,0.15)",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 10,
+            }}
           >
-            {status}
+            <Feather name="shopping-bag" size={16} color="white" />
+          </View>
+          <View>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: "white" }}>
+              {orderId}
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                color: "rgba(255,255,255,0.65)",
+                marginTop: 1,
+              }}
+            >
+              {customer} · {time}
+            </Text>
+          </View>
+        </View>
+
+        {/* Price chip */}
+        <View
+          style={{
+            backgroundColor: "rgba(255,255,255,0.15)",
+            borderRadius: 12,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.2)",
+          }}
+        >
+          <Text style={{ fontSize: 15, fontWeight: "900", color: "white" }}>
+            {price}
+          </Text>
+          <Text
+            style={{
+              fontSize: 9,
+              color: "rgba(255,255,255,0.6)",
+              textAlign: "center",
+            }}
+          >
+            {payment}
           </Text>
         </View>
       </View>
 
-      {/* Customer */}
-      <View className="px-5 py-4 border-b border-gray-50">
-        <View className="flex-row items-center">
-          <View className="w-9 h-9 rounded-2xl bg-gray-100 items-center justify-center mr-3">
-            <Text className="text-gray-600 font-extrabold text-sm">
-              {customer.charAt(0).toUpperCase()}
-            </Text>
+      {/* Status Banner */}
+      <View
+        style={{
+          backgroundColor: style.bg,
+          paddingHorizontal: 18,
+          paddingVertical: 8,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <View
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: 3,
+            backgroundColor: style.text,
+            marginRight: 8,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 11,
+            fontWeight: "800",
+            color: style.text,
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          {status}
+        </Text>
+      </View>
+
+      {/* Route section */}
+      <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 4 }}>
+        {/* Dropoff */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            marginBottom: 16,
+          }}
+        >
+          <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: "#EF4444",
+                marginTop: 3,
+              }}
+            />
           </View>
-          <View>
-            <Text className="text-black font-bold text-sm">{customer}</Text>
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "800",
+                color: "#94A3B8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 2,
+              }}
+            >
+              Delivery Address
+            </Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: "#1E293B",
+                lineHeight: 18,
+              }}
+            >
+              {address}
+            </Text>
             {phone ? (
-              <Text className="text-gray-400 text-xs mt-0.5">{phone}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: 4,
+                }}
+              >
+                <Feather name="phone" size={10} color="#64748B" />
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: "#64748B",
+                    fontWeight: "600",
+                    marginLeft: 4,
+                  }}
+                >
+                  {phone}
+                </Text>
+              </View>
             ) : null}
           </View>
         </View>
-
-        {address !== "—" && (
-          <View className="flex-row items-start mt-3 bg-gray-50 rounded-2xl px-4 py-3">
-            <Feather
-              name="map-pin"
-              size={13}
-              color={Colors.primary.darkGreen}
-              style={{ marginTop: 2 }}
-            />
-            <Text className="text-gray-600 text-xs ml-2 flex-1 leading-5">
-              {address}
-            </Text>
-          </View>
-        )}
       </View>
 
-      {/* Footer */}
-      <View className="px-5 pt-3 pb-5">
-        {/* Price row */}
-        <View className="flex-row items-center justify-between mb-4">
-          <View>
-            <Text className="text-black font-extrabold text-2xl">{price}</Text>
-            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-              {payment}
-            </Text>
-          </View>
-          {/* Delivered badge */}
-          {status === "Delivered" && (
-            <View className="flex-row items-center bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-              <Feather name="check-circle" size={13} color="#059669" />
-              <Text className="text-emerald-700 font-bold text-xs ml-1.5">
-                Delivered
-              </Text>
-            </View>
-          )}
-          {status === "Cancelled" && (
-            <View className="flex-row items-center bg-red-50 border border-red-200 px-3 py-1.5 rounded-full">
-              <Feather name="x-circle" size={13} color="#dc2626" />
-              <Text className="text-red-600 font-bold text-xs ml-1.5">
-                Cancelled
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Action Buttons Row */}
-        {status !== "Delivered" && status !== "Cancelled" && (
-          <View className="flex-row" style={{ gap: 10 }}>
+      {/* Footer Actions */}
+      <View style={{ paddingHorizontal: 18, paddingBottom: 16 }}>
+        {status !== "Delivered" && status !== "Cancelled" ? (
+          <View style={{ flexDirection: "row", gap: 10 }}>
             {/* Update Status Button */}
-            {DELIVERY_STATUSES.includes(status) && (
+            {canUpdate && (
               <TouchableOpacity
                 onPress={onEdit}
                 activeOpacity={0.85}
@@ -615,23 +744,18 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
                   alignItems: "center",
                   justifyContent: "center",
                   backgroundColor: style.bg,
-                  borderColor: style.border,
                   borderWidth: 1.5,
-                  paddingVertical: 13,
+                  borderColor: style.border,
+                  paddingVertical: 12,
                   borderRadius: 16,
                   gap: 7,
                 }}
               >
                 <Feather name="refresh-cw" size={14} color={style.text} />
                 <Text
-                  style={{
-                    color: style.text,
-                    fontWeight: "800",
-                    fontSize: 12,
-                    letterSpacing: 0.3,
-                  }}
+                  style={{ color: style.text, fontWeight: "800", fontSize: 13 }}
                 >
-                  Update Status
+                  Update
                 </Text>
               </TouchableOpacity>
             )}
@@ -646,30 +770,23 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
               }
               activeOpacity={0.85}
               style={{
-                flex: DELIVERY_STATUSES.includes(status) ? 0.6 : 1,
+                flex: canUpdate ? 0.8 : 1,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: Colors.primary.darkGreen,
-                paddingVertical: 13,
+                paddingVertical: 12,
                 borderRadius: 16,
                 gap: 7,
               }}
             >
               <Feather name="navigation" size={14} color="white" />
-              <Text
-                style={{
-                  color: "white",
-                  fontWeight: "800",
-                  fontSize: 12,
-                  letterSpacing: 0.3,
-                }}
-              >
+              <Text style={{ color: "white", fontWeight: "800", fontSize: 13 }}>
                 Track
               </Text>
             </TouchableOpacity>
           </View>
-        )}
+        ) : null}
       </View>
     </View>
   );

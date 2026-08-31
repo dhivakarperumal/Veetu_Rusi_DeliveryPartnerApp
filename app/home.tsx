@@ -125,12 +125,18 @@ export default function Home() {
         <View className="px-5 pt-5">
           <View className="flex-row items-center justify-between mb-5">
             <View>
-              <Text className="text-gray-500 text-xs font-medium">Your delivery desk</Text>
-              <Text className="text-2xl font-extrabold text-gray-900 mt-1">Today's pulse</Text>
+              <Text className="text-gray-500 text-xs font-medium">
+                Your delivery desk
+              </Text>
+              <Text className="text-2xl font-extrabold text-gray-900 mt-1">
+                Today pulse
+              </Text>
             </View>
             <View className="flex-row items-center bg-primary-lightGreen px-3 py-2 rounded-full">
               <View className="w-2 h-2 rounded-full bg-primary-brandGreen mr-2" />
-              <Text className="text-primary-brandGreen text-xs font-bold">Live</Text>
+              <Text className="text-primary-brandGreen text-xs font-bold">
+                Live
+              </Text>
             </View>
           </View>
 
@@ -154,7 +160,9 @@ export default function Home() {
             </View>
             <View className="flex-row items-center mt-6">
               <Ionicons name="location-outline" size={15} color="#D7E8C5" />
-              <Text className="text-white/80 text-xs ml-2">Anna Nagar, Chennai</Text>
+              <Text className="text-white/80 text-xs ml-2">
+                Anna Nagar, Chennai
+              </Text>
               <TouchableOpacity
                 onPress={() => router.push("/orders")}
                 className="ml-auto flex-row items-center"
@@ -222,7 +230,9 @@ export default function Home() {
           </View>
 
           <View className="flex-row items-center justify-between mt-7 mb-4">
-            <Text className="text-lg font-extrabold text-gray-900">Quick Actions</Text>
+            <Text className="text-lg font-extrabold text-gray-900">
+              Quick Actions
+            </Text>
           </View>
           <View className="flex-row justify-between">
             <QuickAction
@@ -361,63 +371,114 @@ function isInPeriod(order: any, period: string, now: Date) {
 }
 
 function MetricCard({
-  icon, label, value, tone, wide,
+  icon,
+  label,
+  value,
+  tone,
+  wide,
 }: {
-  icon: any; label: string; value: number; tone: string; wide: boolean;
+  icon: any;
+  label: string;
+  value: number;
+  tone: string;
+  wide: boolean;
 }) {
-  const palette: Record<string, { solid: string; dark: string; glow: string }> = {
-    green:  { solid: "#16A34A", dark: "#14532D", glow: "rgba(22,163,74,0.18)" },
-    gold:   { solid: "#D97706", dark: "#78350F", glow: "rgba(217,119,6,0.18)"  },
-    blue:   { solid: "#2563EB", dark: "#1E3A8A", glow: "rgba(37,99,235,0.18)"  },
-    red:    { solid: "#DC2626", dark: "#7F1D1D", glow: "rgba(220,38,38,0.18)"  },
-    purple: { solid: "#7C3AED", dark: "#4C1D95", glow: "rgba(124,58,237,0.18)" },
-    orange: { solid: "#EA580C", dark: "#7C2D12", glow: "rgba(234,88,12,0.18)"  },
-  };
+  const palette: Record<string, { solid: string; dark: string; glow: string }> =
+    {
+      green: {
+        solid: "#16A34A",
+        dark: "#14532D",
+        glow: "rgba(22,163,74,0.18)",
+      },
+      gold: { solid: "#D97706", dark: "#78350F", glow: "rgba(217,119,6,0.18)" },
+      blue: { solid: "#2563EB", dark: "#1E3A8A", glow: "rgba(37,99,235,0.18)" },
+      red: { solid: "#DC2626", dark: "#7F1D1D", glow: "rgba(220,38,38,0.18)" },
+      purple: {
+        solid: "#7C3AED",
+        dark: "#4C1D95",
+        glow: "rgba(124,58,237,0.18)",
+      },
+      orange: {
+        solid: "#EA580C",
+        dark: "#7C2D12",
+        glow: "rgba(234,88,12,0.18)",
+      },
+    };
   const p = palette[tone] || palette.green;
 
   return (
-    <View style={{
-      width: wide ? "31.5%" : "48.5%",
-      backgroundColor: p.solid,
-      borderRadius: 22,
-      marginBottom: 12,
-      padding: 18,
-      elevation: 5,
-      shadowColor: p.solid,
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      overflow: "hidden",
-    }}>
-      {/* Background decorative circle */}
-      <View style={{
-        position: "absolute", right: -18, bottom: -18,
-        width: 80, height: 80, borderRadius: 40,
-        backgroundColor: "rgba(255,255,255,0.1)",
-      }} />
-      <View style={{
-        position: "absolute", right: 10, top: -20,
-        width: 50, height: 50, borderRadius: 25,
-        backgroundColor: "rgba(255,255,255,0.07)",
-      }} />
+    <View
+      style={{
+        width: wide ? "31.5%" : "48.5%",
+        backgroundColor: p.solid,
+        borderRadius: 22,
+        marginBottom: 12,
+        padding: 18,
+        elevation: 5,
+        shadowColor: p.solid,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        overflow: "hidden",
+      }}
+    >
+      <View
+        style={{
+          position: "absolute",
+          right: -18,
+          bottom: -18,
+          width: 80,
+          height: 80,
+          borderRadius: 40,
+          backgroundColor: "rgba(255,255,255,0.1)",
+        }}
+      />
+      <View
+        style={{
+          position: "absolute",
+          right: 10,
+          top: -20,
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          backgroundColor: "rgba(255,255,255,0.07)",
+        }}
+      />
 
-      {/* Icon */}
-      <View style={{
-        width: 38, height: 38, borderRadius: 12,
-        backgroundColor: "rgba(255,255,255,0.2)",
-        alignItems: "center", justifyContent: "center",
-        marginBottom: 14,
-      }}>
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 12,
+          backgroundColor: "rgba(255,255,255,0.2)",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 14,
+        }}
+      >
         <Feather name={icon} size={18} color="white" />
       </View>
 
-      {/* Value */}
-      <Text style={{ fontSize: 30, fontWeight: "900", color: "white", lineHeight: 34 }}>
+      <Text
+        style={{
+          fontSize: 30,
+          fontWeight: "900",
+          color: "white",
+          lineHeight: 34,
+        }}
+      >
         {value}
       </Text>
 
-      {/* Label */}
-      <Text style={{ fontSize: 11, fontWeight: "600", color: "rgba(255,255,255,0.75)", marginTop: 5 }} numberOfLines={1}>
+      <Text
+        style={{
+          fontSize: 11,
+          fontWeight: "600",
+          color: "rgba(255,255,255,0.75)",
+          marginTop: 5,
+        }}
+        numberOfLines={1}
+      >
         {label}
       </Text>
     </View>
@@ -425,7 +486,10 @@ function MetricCard({
 }
 
 function QuickAction({
-  icon, label, bg, onPress,
+  icon,
+  label,
+  bg,
+  onPress,
 }: {
   icon: any;
   label: string;
@@ -433,8 +497,11 @@ function QuickAction({
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8} className="items-center w-[23%]">
-      {/* Colored icon box */}
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.8}
+      className="items-center w-[23%]"
+    >
       <View
         style={{
           width: 58,
@@ -452,7 +519,10 @@ function QuickAction({
       >
         <Feather name={icon} size={22} color="white" />
       </View>
-      <Text className="text-gray-600 text-[11px] font-bold mt-2 text-center" numberOfLines={1}>
+      <Text
+        className="text-gray-600 text-[11px] font-bold mt-2 text-center"
+        numberOfLines={1}
+      >
         {label}
       </Text>
     </TouchableOpacity>
@@ -460,123 +530,245 @@ function QuickAction({
 }
 
 function OrderCard({ order, onPress }: { order: any; onPress: () => void }) {
+  const router = useRouter();
   const id = order.order_id || `#${order.id}`;
   const price = Number(order.total_amount || 0).toFixed(2);
-  const pickup  = order.pickup_address  || order.restaurant_address || "Restaurant Address";
-  const drop    = order.delivery_address || order.street_address    || "Customer Address";
-  const status  = order.status || order.order_status || "New Order";
+  const pickup =
+    order.pickup_address || order.restaurant_address || "Restaurant Address";
+  const drop =
+    order.delivery_address || order.street_address || "Customer Address";
+  const status = order.status || order.order_status || "New Order";
   const customer = order.customer_name || "Customer";
   const payment = order.payment_method || "COD";
-  const time = order.ordered_at || order.created_at
-    ? new Date(order.ordered_at || order.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
-    : "";
+  const time =
+    order.ordered_at || order.created_at
+      ? new Date(order.ordered_at || order.created_at).toLocaleTimeString(
+          "en-IN",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          },
+        )
+      : "";
+
+  const handleViewDetails = () => {
+    const params = getOrderDetailsParams(order);
+    router.push({
+      pathname: "/order-details",
+      params,
+    });
+    if (onPress) onPress();
+  };
 
   return (
-    <View style={{
-      backgroundColor: "#fff",
-      borderRadius: 24,
-      marginBottom: 14,
-      borderWidth: 1.5,
-      borderColor: "#E2E8F0",
-      elevation: 4,
-      shadowColor: Colors.primary.darkGreen,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 12,
-      overflow: "hidden",
-    }}>
-
-      {/* Header — dark green bg */}
-      <View style={{
-        backgroundColor: Colors.primary.darkGreen,
-        paddingHorizontal: 18, paddingVertical: 14,
-        flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-      }}>
+    <View
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        marginBottom: 14,
+        borderWidth: 1.5,
+        borderColor: "#E2E8F0",
+        elevation: 4,
+        shadowColor: Colors.primary.darkGreen,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        overflow: "hidden",
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: Colors.primary.darkGreen,
+          paddingHorizontal: 18,
+          paddingVertical: 14,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View style={{
-            width: 36, height: 36, borderRadius: 10,
-            backgroundColor: "rgba(255,255,255,0.15)",
-            alignItems: "center", justifyContent: "center", marginRight: 10,
-          }}>
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              backgroundColor: "rgba(255,255,255,0.15)",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 10,
+            }}
+          >
             <Feather name="shopping-bag" size={16} color="white" />
           </View>
           <View>
-            <Text style={{ fontSize: 13, fontWeight: "900", color: "white" }}>{id}</Text>
-            <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 1 }}>{customer}{time ? ` · ${time}` : ""}</Text>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: "white" }}>
+              {id}
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                color: "rgba(255,255,255,0.65)",
+                marginTop: 1,
+              }}
+            >
+              {customer}
+              {time ? ` · ${time}` : ""}
+            </Text>
           </View>
         </View>
 
-        {/* Price chip */}
-        <View style={{
-          backgroundColor: "rgba(255,255,255,0.15)",
-          borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6,
-          borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
-        }}>
-          <Text style={{ fontSize: 15, fontWeight: "900", color: "white" }}>₹{price}</Text>
-          <Text style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", textAlign: "center" }}>{payment}</Text>
+        <View
+          style={{
+            backgroundColor: "rgba(255,255,255,0.15)",
+            borderRadius: 12,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.2)",
+          }}
+        >
+          <Text style={{ fontSize: 15, fontWeight: "900", color: "white" }}>
+            ₹{price}
+          </Text>
+          <Text
+            style={{
+              fontSize: 9,
+              color: "rgba(255,255,255,0.6)",
+              textAlign: "center",
+            }}
+          >
+            {payment}
+          </Text>
         </View>
       </View>
 
-      {/* Route section */}
       <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 4 }}>
-        {/* Pickup */}
-        <View style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 8 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            marginBottom: 8,
+          }}
+        >
           <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
-            <View style={{
-              width: 12, height: 12, borderRadius: 6,
-              backgroundColor: Colors.primary.darkGreen,
-              marginTop: 3,
-            }} />
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: Colors.primary.darkGreen,
+                marginTop: 3,
+              }}
+            />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 9, fontWeight: "800", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Pickup</Text>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }} numberOfLines={1}>{pickup}</Text>
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "800",
+                color: "#94A3B8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 2,
+              }}
+            >
+              Pickup
+            </Text>
+            <Text
+              style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }}
+              numberOfLines={1}
+            >
+              {pickup}
+            </Text>
           </View>
         </View>
 
-        {/* Connector */}
         <View style={{ marginLeft: 28, marginBottom: 8 }}>
-          {[0,1,2].map(i => (
-            <View key={i} style={{ width: 2, height: 5, backgroundColor: "#CBD5E1", borderRadius: 1, marginBottom: 2 }} />
+          {[0, 1, 2].map((i) => (
+            <View
+              key={i}
+              style={{
+                width: 2,
+                height: 5,
+                backgroundColor: "#CBD5E1",
+                borderRadius: 1,
+                marginBottom: 2,
+              }}
+            />
           ))}
         </View>
 
-        {/* Dropoff */}
-        <View style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 16 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            marginBottom: 16,
+          }}
+        >
           <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
-            <View style={{
-              width: 12, height: 12, borderRadius: 6,
-              backgroundColor: "#EF4444",
-              marginTop: 3,
-            }} />
+            <View
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: "#EF4444",
+                marginTop: 3,
+              }}
+            />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 9, fontWeight: "800", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Dropoff</Text>
-            <Text style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }} numberOfLines={1}>{drop}</Text>
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "800",
+                color: "#94A3B8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 2,
+              }}
+            >
+              Dropoff
+            </Text>
+            <Text
+              style={{ fontSize: 13, fontWeight: "600", color: "#1E293B" }}
+              numberOfLines={1}
+            >
+              {drop}
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* CTA Button */}
       <View style={{ paddingHorizontal: 18, paddingBottom: 16 }}>
         <TouchableOpacity
-          onPress={onPress}
+          onPress={handleViewDetails}
           activeOpacity={0.85}
           style={{
-            flexDirection: "row", alignItems: "center", justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
             backgroundColor: "#F0FDF4",
-            borderWidth: 1.5, borderColor: Colors.primary.darkGreen,
-            paddingVertical: 12, borderRadius: 16,
+            borderWidth: 1.5,
+            borderColor: Colors.primary.darkGreen,
+            paddingVertical: 12,
+            borderRadius: 16,
             gap: 8,
           }}
         >
           <Feather name="eye" size={15} color={Colors.primary.darkGreen} />
-          <Text style={{ color: Colors.primary.darkGreen, fontWeight: "800", fontSize: 13 }}>View Order Details</Text>
+          <Text
+            style={{
+              color: Colors.primary.darkGreen,
+              fontWeight: "800",
+              fontSize: 13,
+            }}
+          >
+            View Order Details
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-
 }
 
 /* ─── Home Banner ────────────────────────────────────────────────────── */
@@ -638,17 +830,26 @@ function HomeBanner() {
         <View className="absolute right-8 -bottom-12 h-24 w-24 rounded-full bg-white/5" />
 
         <View className="mb-4 self-start rounded-full border border-white/20 bg-white/10 px-2.5 py-1">
-          <Text className="text-[9px] font-extrabold uppercase tracking-[1.2px]" style={{ color: banner.accent }}>
+          <Text
+            className="text-[9px] font-extrabold uppercase tracking-[1.2px]"
+            style={{ color: banner.accent }}
+          >
             {banner.tag}
           </Text>
         </View>
 
         <View className="flex-row items-start justify-between">
           <View className="mr-3 flex-1">
-            <Text className="mb-1.5 text-lg font-black text-white" style={{ lineHeight: 24 }}>
+            <Text
+              className="mb-1.5 text-lg font-black text-white"
+              style={{ lineHeight: 24 }}
+            >
               {banner.title}
             </Text>
-            <Text className="text-xs font-medium text-white/75" style={{ lineHeight: 18 }}>
+            <Text
+              className="text-xs font-medium text-white/75"
+              style={{ lineHeight: 18 }}
+            >
               {banner.subtitle}
             </Text>
           </View>
@@ -659,9 +860,7 @@ function HomeBanner() {
           activeOpacity={0.8}
           className="mt-5 flex-row items-center self-start rounded-xl border border-white/25 bg-white/15 px-4 py-2"
         >
-          <Text className="text-xs font-extrabold text-white">
-            Learn more
-          </Text>
+          <Text className="text-xs font-extrabold text-white">Learn more</Text>
           <Feather
             name="arrow-right"
             size={13}

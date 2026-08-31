@@ -34,6 +34,10 @@ export default function Profile() {
     router.replace("/src/Auth/LoginScreen");
   };
 
+  const handleEditProfile = () => {
+    router.push("/personal-info");
+  };
+
   const firstLetter = user?.name
     ? user.name.charAt(0).toUpperCase()
     : user?.email
@@ -80,7 +84,11 @@ export default function Profile() {
                     </View>
                   </View>
 
-                  <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                  <TouchableOpacity
+                    className="h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10"
+                    onPress={handleEditProfile}
+                    activeOpacity={0.8}
+                  >
                     <Feather name="edit-2" size={16} color="white" />
                   </TouchableOpacity>
                 </View>
@@ -194,7 +202,7 @@ function MenuItem({ icon, label, iconFamily = "Feather", onPress }: any) {
         {iconFamily === "Ionicons" && (
           <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-lightGreen">
             <Ionicons
-              name={`${icon}-outline`}
+              name={getIoniconName(icon)}
               size={20}
               color={Colors.primary.darkGreen}
             />
@@ -249,4 +257,17 @@ function ProfileStatCard({
       </Text>
     </View>
   );
+}
+
+function getIoniconName(icon: string): any {
+  const map: Record<string, string> = {
+    user: "person-outline",
+    car: "car-outline",
+    bell: "notifications-outline",
+    clock: "time-outline",
+    "file-text": "document-text-outline",
+    "bank-outline": "business-outline",
+  };
+
+  return map[icon] || `${icon}-outline`;
 }

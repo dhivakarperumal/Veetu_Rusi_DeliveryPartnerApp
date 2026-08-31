@@ -335,7 +335,7 @@ export default function LoginScreen() {
             </View>
 
             <Text className="text-sm text-gray-500">
-              Don't have an account?{" "}
+              Do not have an account?{" "}
               <Text className="text-accent-orange font-bold">
                 Contact Admin
               </Text>
