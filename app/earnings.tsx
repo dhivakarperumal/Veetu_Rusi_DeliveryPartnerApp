@@ -2,15 +2,15 @@ import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -75,11 +75,19 @@ export default function Earnings() {
     .reduce((sum, order) => sum + getOrderAmount(order), 0);
   const filteredOrders = deliveredOrders.filter((order) => {
     const orderId = String(order.order_id || order.id || "").toLowerCase();
+    const customer = String(order.customer_name || "").toLowerCase();
+    const amount = String(getOrderAmount(order) || "").toLowerCase();
     const payment = String(
       order.payment_status || order.payment_method || "paid",
     ).toLowerCase();
+    const searchLower = search.toLowerCase();
+    const matchesSearch =
+      !searchLower ||
+      orderId.includes(searchLower) ||
+      customer.includes(searchLower) ||
+      amount.includes(searchLower);
     return (
-      orderId.includes(search.toLowerCase()) &&
+      matchesSearch &&
       (paymentFilter === "All payments" ||
         payment.includes(paymentFilter.toLowerCase()))
     );
@@ -133,6 +141,28 @@ export default function Earnings() {
               <Text className="text-white text-xs font-bold ml-2">Filter</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Search Bar */}
+          <View className="flex-row items-center bg-white rounded-2xl px-4 py-3 border border-gray-200 shadow-sm mb-4">
+            <Feather name="search" size={18} color="#94A3B8" />
+            <TextInput
+              className="flex-1 ml-3 text-sm text-gray-800 font-semibold"
+              placeholder="Search by Order ID, Customer, or Amount..."
+              placeholderTextColor="#94A3B8"
+              value={search}
+              onChangeText={setSearch}
+              autoCorrect={false}
+            />
+            {search.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearch("")}
+                activeOpacity={0.7}
+              >
+                <Feather name="x-circle" size={18} color="#94A3B8" />
+              </TouchableOpacity>
+            )}
+          </View>
+
           <View className="flex-row flex-wrap justify-between mb-3">
             <SummaryCard
               icon="briefcase"
@@ -242,45 +272,67 @@ export default function Earnings() {
               <TouchableOpacity
                 key={order.id || order.order_id || index}
                 onPress={() => setSelectedOrder(order)}
-                className="bg-white border border-gray-100 rounded-2xl p-4 mb-3"
+                className="bg-white border border-green-100 rounded-2xl p-4 mb-3 overflow-hidden shadow-sm"
+                style={{
+                  borderLeftWidth: 4,
+                  borderLeftColor: Colors.primary.brandGreen,
+                }}
               >
-                <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center justify-between mb-3">
                   <View className="flex-row items-center flex-1">
-                    <View className="w-9 h-9 rounded-xl bg-primary-lightGreen items-center justify-center mr-3">
+                    <View className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-100 to-green-50 items-center justify-center mr-3 border border-green-200">
                       <Feather
-                        name="check"
-                        size={16}
+                        name="package"
+                        size={18}
                         color={Colors.primary.brandGreen}
                       />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-gray-900 font-extrabold text-sm">
+                      <Text className="text-gray-900 font-extrabold text-base">
                         {order.order_id || `#${order.id}`}
                       </Text>
-                      <Text
-                        className="text-gray-400 text-xs mt-1"
-                        numberOfLines={1}
-                      >
-                        {formatDate(getOrderDate(order))} ·{" "}
-                        {order.customer_name || "Customer"}
+                      <Text className="text-gray-500 text-xs mt-0.5">
+                        {formatDate(getOrderDate(order))}
                       </Text>
                     </View>
                   </View>
                   <View className="items-end">
-                    <Text className="text-primary-brandGreen font-extrabold">
-                      ₹{getOrderAmount(order).toFixed(2)}
+                    <Text className="text-primary-brandGreen font-extrabold text-lg">
+                      +₹{getOrderAmount(order).toFixed(2)}
                     </Text>
-                    <Text className="text-green-600 text-[10px] font-bold mt-1">
-                      Paid · View details
+                    <Text className="text-green-600 text-[9px] font-bold mt-1 bg-green-100 px-2 py-1 rounded-full">
+                      ✓ Completed
                     </Text>
                   </View>
                 </View>
-                <View className="flex-row border-t border-gray-50 mt-3 pt-3">
-                  <Text className="text-gray-400 text-[10px] flex-1">
-                    Distance: {order.distance ? `${order.distance} km` : "--"}
-                  </Text>
-                  <Text className="text-gray-400 text-[10px]">
-                    Delivery fee
+                <View className="flex-row items-center justify-between bg-gray-50 rounded-lg px-3 py-2 mb-2">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-[10px] font-semibold mb-1">
+                      Customer
+                    </Text>
+                    <Text className="text-gray-800 text-sm font-semibold">
+                      {order.customer_name || "Customer"}
+                    </Text>
+                  </View>
+                  <View className="w-px bg-gray-300 h-8 mx-2" />
+                  <View className="flex-1 items-end">
+                    <Text className="text-gray-500 text-[10px] font-semibold mb-1">
+                      Distance
+                    </Text>
+                    <Text className="text-gray-800 text-sm font-semibold">
+                      {order.distance ? `${order.distance} km` : "--"}
+                    </Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <Feather name="map-pin" size={12} color="#94A3B8" />
+                  <Text
+                    className="text-gray-400 text-[10px] flex-1"
+                    numberOfLines={1}
+                  >
+                    {order.delivery_address ||
+                      order.street_address ||
+                      "Delivery address"}
                   </Text>
                 </View>
               </TouchableOpacity>
