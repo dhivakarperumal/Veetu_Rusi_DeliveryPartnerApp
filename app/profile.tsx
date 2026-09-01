@@ -35,7 +35,10 @@ export default function Profile() {
   };
 
   const handleEditProfile = () => {
-    router.push("/personal-info");
+    router.push({
+      pathname: "/personal-info",
+      params: { editMode: "true" },
+    });
   };
 
   const firstLetter = user?.name
