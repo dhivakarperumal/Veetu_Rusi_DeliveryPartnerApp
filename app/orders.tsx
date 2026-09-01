@@ -594,7 +594,7 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
         </View>
       </View>
 
-      <View className="flex-row items-center justify-end px-[12px] py-3">
+      <View className="flex-row items-center justify-end px-[10px] py-3">
         <View
           className="flex-row items-center rounded-full border px-3 py-1.5"
           style={{
