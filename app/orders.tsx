@@ -45,7 +45,7 @@ const STATUS_STYLE: Record<
   "Reached Location": { bg: "#4a044e", text: "#f0abfc", border: "#86198f" },
   "Waiting for Customer": { bg: "#451a03", text: "#fcd34d", border: "#92400e" },
   "Out for Delivery": { bg: "#1e1b4b", text: "#a5b4fc", border: "#3730a3" },
-  Delivered: { bg: "#022c22", text: "#6ee7b7", border: "#065f46" },
+  Delivered: { bg: "#d1fae5", text: "#000000", border: "#10b981" },
   Cancelled: { bg: "#450a0a", text: "#fca5a5", border: "#991b1b" },
 };
 
@@ -545,182 +545,92 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
     status !== "Delivered" &&
     status !== "Cancelled";
 
+  const handleViewDetails = () => {
+    router.push({
+      pathname: "/order-details",
+      params: {
+        orderId: String(order.id || order.order_id || ""),
+        status: String(order.status || "New Order"),
+        amount: String(order.total_amount || "0"),
+        pickup: String(
+          order.pickup_address ||
+            order.restaurant_address ||
+            "Restaurant address",
+        ),
+        drop: String(
+          order.delivery_address || order.street_address || "Customer address",
+        ),
+        payment: String(order.payment_method || "COD"),
+        customer: String(order.customer_name || "Customer"),
+      },
+    });
+  };
+
   return (
-    <View
-      style={{
-        backgroundColor: "#fff",
-        borderRadius: 24,
-        marginBottom: 14,
-        borderWidth: 1.5,
-        borderColor: "#E2E8F0",
-        elevation: 4,
-        shadowColor: Colors.primary.darkGreen,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        overflow: "hidden",
-      }}
-    >
-      {/* Header — dark green bg */}
+    <View className="mb-3.5 overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm shadow-green-900/10">
       <View
-        style={{
-          backgroundColor: Colors.primary.darkGreen,
-          paddingHorizontal: 18,
-          paddingVertical: 14,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
+        className="flex-row items-center justify-between px-[18px] py-[14px]"
+        style={{ backgroundColor: Colors.primary.darkGreen }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              backgroundColor: "rgba(255,255,255,0.15)",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 10,
-            }}
-          >
+        <View className="flex-row items-center">
+          <View className="mr-2.5 h-9 w-9 items-center justify-center rounded-xl bg-white/10">
             <Feather name="shopping-bag" size={16} color="white" />
           </View>
           <View>
-            <Text style={{ fontSize: 13, fontWeight: "900", color: "white" }}>
-              {orderId}
-            </Text>
-            <Text
-              style={{
-                fontSize: 10,
-                color: "rgba(255,255,255,0.65)",
-                marginTop: 1,
-              }}
-            >
+            <Text className="text-[13px] font-black text-white">{orderId}</Text>
+            <Text className="mt-0.5 text-[10px] text-white/70">
               {customer} · {time}
             </Text>
           </View>
         </View>
 
-        {/* Price chip */}
-        <View
-          style={{
-            backgroundColor: "rgba(255,255,255,0.15)",
-            borderRadius: 12,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.2)",
-          }}
-        >
-          <Text style={{ fontSize: 15, fontWeight: "900", color: "white" }}>
+        <View className="rounded-xl border border-white/20 bg-white/10 px-3 py-1.5">
+          <Text className="text-center text-[15px] font-black text-white">
             {price}
           </Text>
-          <Text
-            style={{
-              fontSize: 9,
-              color: "rgba(255,255,255,0.6)",
-              textAlign: "center",
-            }}
-          >
+          <Text className="text-center text-[9px] text-white/60">
             {payment}
           </Text>
         </View>
       </View>
 
-      {/* Status Banner */}
-      <View
-        style={{
-          backgroundColor: style.bg,
-          paddingHorizontal: 18,
-          paddingVertical: 8,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
+      <View className="flex-row items-center justify-end px-[12px] py-3">
         <View
+          className="flex-row items-center rounded-full border px-3 py-1.5"
           style={{
-            width: 6,
-            height: 6,
-            borderRadius: 3,
-            backgroundColor: style.text,
-            marginRight: 8,
-          }}
-        />
-        <Text
-          style={{
-            fontSize: 11,
-            fontWeight: "800",
-            color: style.text,
-            textTransform: "uppercase",
-            letterSpacing: 1,
+            backgroundColor: style.bg + "20",
+            borderColor: style.border,
           }}
         >
-          {status}
-        </Text>
+          <View
+            className="mr-2 h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: "#000000" }}
+          />
+          <Text
+            className="text-[11px] font-extrabold uppercase tracking-[1px]"
+            style={{ color: "#000000" }}
+          >
+            {status}
+          </Text>
+        </View>
       </View>
 
-      {/* Route section */}
-      <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 4 }}>
-        {/* Dropoff */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "flex-start",
-            marginBottom: 16,
-          }}
-        >
-          <View style={{ width: 24, alignItems: "center", marginRight: 10 }}>
-            <View
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: 6,
-                backgroundColor: "#EF4444",
-                marginTop: 3,
-              }}
-            />
+      <View className="px-[18px] pb-1 pt-4">
+        <View className="mb-4 flex-row items-start">
+          <View className="mr-2.5 w-6 items-center">
+            <View className="mt-0.5 h-3 w-3 rounded-full bg-red-500" />
           </View>
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: 9,
-                fontWeight: "800",
-                color: "#94A3B8",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                marginBottom: 2,
-              }}
-            >
+          <View className="flex-1">
+            <Text className="mb-1 text-[9px] font-extrabold uppercase tracking-[1px] text-slate-400">
               Delivery Address
             </Text>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: "600",
-                color: "#1E293B",
-                lineHeight: 18,
-              }}
-            >
+            <Text className="text-[13px] font-semibold leading-5 text-slate-800">
               {address}
             </Text>
             {phone ? (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 4,
-                }}
-              >
+              <View className="mt-1 flex-row items-center">
                 <Feather name="phone" size={10} color="#64748B" />
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: "#64748B",
-                    fontWeight: "600",
-                    marginLeft: 4,
-                  }}
-                >
+                <Text className="ml-1 text-[11px] font-semibold text-slate-500">
                   {phone}
                 </Text>
               </View>
@@ -729,38 +639,40 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
         </View>
       </View>
 
-      {/* Footer Actions */}
-      <View style={{ paddingHorizontal: 18, paddingBottom: 16 }}>
+      <View className="px-[18px] pb-4">
         {status !== "Delivered" && status !== "Cancelled" ? (
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            {/* Update Status Button */}
+          <View className="flex-row gap-2.5">
+            <TouchableOpacity
+              onPress={handleViewDetails}
+              activeOpacity={0.85}
+              className="flex-1 flex-row items-center justify-center rounded-2xl border border-[#1E4D3B] bg-[#F0FDF4] px-3 py-3"
+            >
+              <Feather name="eye" size={14} color={Colors.primary.darkGreen} />
+              <Text className="ml-2 text-[13px] font-extrabold text-[#1E4D3B]">
+                View Or
+              </Text>
+            </TouchableOpacity>
+
             {canUpdate && (
               <TouchableOpacity
                 onPress={onEdit}
                 activeOpacity={0.85}
+                className="flex-1 flex-row items-center justify-center rounded-2xl border px-3 py-3"
                 style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
                   backgroundColor: style.bg,
-                  borderWidth: 1.5,
                   borderColor: style.border,
-                  paddingVertical: 12,
-                  borderRadius: 16,
-                  gap: 7,
                 }}
               >
                 <Feather name="refresh-cw" size={14} color={style.text} />
                 <Text
-                  style={{ color: style.text, fontWeight: "800", fontSize: 13 }}
+                  className="ml-2 text-[13px] font-extrabold"
+                  style={{ color: style.text }}
                 >
                   Update
                 </Text>
               </TouchableOpacity>
             )}
 
-            {/* Track Button */}
             <TouchableOpacity
               onPress={() =>
                 router.push({
@@ -769,19 +681,12 @@ function OrderCard({ order, onEdit }: { order: any; onEdit: () => void }) {
                 })
               }
               activeOpacity={0.85}
-              style={{
-                flex: canUpdate ? 0.8 : 1,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: Colors.primary.darkGreen,
-                paddingVertical: 12,
-                borderRadius: 16,
-                gap: 7,
-              }}
+              className={`flex-row items-center justify-center rounded-2xl bg-[#1E4D3B] px-3 py-3 ${
+                canUpdate ? "flex-[0.8]" : "flex-1"
+              }`}
             >
               <Feather name="navigation" size={14} color="white" />
-              <Text style={{ color: "white", fontWeight: "800", fontSize: 13 }}>
+              <Text className="ml-2 text-[13px] font-extrabold text-white">
                 Track
               </Text>
             </TouchableOpacity>

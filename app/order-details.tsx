@@ -28,6 +28,34 @@ const DELIVERY_STATUSES = [
   "Delivered",
 ];
 
+const STATUS_STYLE: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  "New Order": { bg: "#1e293b", text: "#94a3b8", border: "#334155" },
+  Accepted: { bg: "#172554", text: "#93c5fd", border: "#1e40af" },
+  Preparing: { bg: "#3b0764", text: "#d8b4fe", border: "#6b21a8" },
+  "Food Ready": { bg: "#431407", text: "#fdba74", border: "#9a3412" },
+  Packing: { bg: "#1e1b4b", text: "#a5b4fc", border: "#3730a3" },
+  "Searching Delivery Partner": {
+    bg: "#451a03",
+    text: "#fde047",
+    border: "#92400e",
+  },
+  "Delivery Partner Assigned": {
+    bg: "#083344",
+    text: "#67e8f9",
+    border: "#155e75",
+  },
+  "Picked Up": { bg: "#082f49", text: "#7dd3fc", border: "#075985" },
+  "Start Ride": { bg: "#172554", text: "#93c5fd", border: "#1e40af" },
+  "Reached Location": { bg: "#4a044e", text: "#f0abfc", border: "#86198f" },
+  "Waiting for Customer": { bg: "#451a03", text: "#fcd34d", border: "#92400e" },
+  "Out for Delivery": { bg: "#1e1b4b", text: "#a5b4fc", border: "#3730a3" },
+  Delivered: { bg: "#022c22", text: "#6ee7b7", border: "#065f46" },
+  Cancelled: { bg: "#450a0a", text: "#fca5a5", border: "#991b1b" },
+};
+
 type OrderParams = {
   orderId?: string;
   status?: string;
@@ -57,6 +85,8 @@ export default function OrderDetails() {
     statusIndex >= 0
       ? DELIVERY_STATUSES[statusIndex + 1]
       : DELIVERY_STATUSES[1];
+  const currentStatusStyle =
+    STATUS_STYLE[currentStatus] || STATUS_STYLE["New Order"];
   const canUpdate = Boolean(
     orderKey && nextStatus && currentStatus.toLowerCase() !== "cancelled",
   );
@@ -84,27 +114,43 @@ export default function OrderDetails() {
   return (
     <SafeAreaView
       className="flex-1 bg-background-main"
-      edges={["top", "left", "right"]}
+      edges={["left", "right"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
-      <View className="px-6 pt-3 pb-3 flex-row items-center justify-between">
+      <View
+        className="bg-primary-darkGreen pb-6 px-6 flex-row items-center justify-between rounded-b-3xl mb-4 shadow-sm"
+        style={{ paddingTop: Math.max(insets.top, 16) + 16 }}
+      >
         <View className="flex-row items-center flex-1 mr-3">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="black" />
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="mr-4 w-10 h-10 items-center justify-center bg-white/10 rounded-full"
+          >
+            <Feather name="arrow-left" size={20} color="white" />
           </TouchableOpacity>
           <View className="flex-1">
-            <Text className="text-black font-bold text-lg" numberOfLines={1}>
+            <Text
+              className="text-white font-extrabold text-lg tracking-wide"
+              numberOfLines={1}
+            >
               Order Details
             </Text>
-            <Text className="text-gray-500 font-semibold text-sm">
+            <Text className="text-white/70 font-semibold text-xs mt-1">
               {orderId}
             </Text>
           </View>
         </View>
-        <View className="bg-background-lightBeige px-3 py-1.5 rounded-xl max-w-[42%]">
+        <View
+          className="max-w-[42%] rounded-xl border px-3 py-1.5"
+          style={{
+            backgroundColor: currentStatusStyle.bg,
+            borderColor: currentStatusStyle.border,
+          }}
+        >
           <Text
-            className="text-accent-orange font-bold text-xs"
+            className="text-[10px] font-bold uppercase tracking-wider"
             numberOfLines={1}
+            style={{ color: currentStatusStyle.text }}
           >
             {currentStatus}
           </Text>
