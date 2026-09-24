@@ -33,14 +33,53 @@ export async function getStoredToken() {
   return storageToken || cachedToken || null;
 }
 
+function resolveProfileRoot(payload) {
+  if (!payload || typeof payload !== "object") {
+    return {};
+  }
+
+  if (payload.user && typeof payload.user === "object") return payload.user;
+  if (payload.profile && typeof payload.profile === "object") return payload.profile;
+  if (payload.data && typeof payload.data === "object") {
+    if (payload.data.user && typeof payload.data.user === "object") {
+      return payload.data.user;
+    }
+    if (payload.data.profile && typeof payload.data.profile === "object") {
+      return payload.data.profile;
+    }
+    return payload.data;
+  }
+  if (payload.result && typeof payload.result === "object") {
+    if (payload.result.user && typeof payload.result.user === "object") {
+      return payload.result.user;
+    }
+    if (payload.result.profile && typeof payload.result.profile === "object") {
+      return payload.result.profile;
+    }
+    return payload.result;
+  }
+
+  return payload;
+}
+
 function getNestedValue(obj, ...keys) {
-  for (const key of keys) {
-    if (!key) continue;
-    const value = obj?.[key];
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
+  if (!obj || typeof obj !== "object") return undefined;
+
+  const searchTargets = [obj];
+  if (obj.data && typeof obj.data === "object") searchTargets.push(obj.data);
+  if (obj.user && typeof obj.user === "object") searchTargets.push(obj.user);
+  if (obj.profile && typeof obj.profile === "object") searchTargets.push(obj.profile);
+
+  for (const target of searchTargets) {
+    for (const key of keys) {
+      if (!key) continue;
+      const value = target?.[key];
+      if (value !== undefined && value !== null && value !== "") {
+        return value;
+      }
     }
   }
+
   return undefined;
 }
 
@@ -413,9 +452,8 @@ export async function getProfileData() {
     api.get("/delivery/profile").catch(() => ({ data: null })),
   ]);
 
-  const profile = normalizeProfileData(
-    profileResult.data?.user || profileResult.data || {},
-  );
+  const profilePayload = resolveProfileRoot(profileResult.data || profileResult);
+  const profile = normalizeProfileData(profilePayload);
   const referral = referralResult.data || {};
   const partner = partnerResult.data || null;
 
@@ -502,13 +540,17 @@ export async function loginWithIdentifier(identifier, password) {
   const { token, accessToken, access_token, user, message } =
     response.data || {};
   const authToken = token || accessToken || access_token;
+  const profilePayload = resolveProfileRoot(user || response.data || {});
 
   if (authToken) {
     await setAuthToken(authToken);
   }
 
-  if (user) {
-    await AsyncStorage.setItem("userProfile", JSON.stringify(user));
+  if (profilePayload && Object.keys(profilePayload).length > 0) {
+    await AsyncStorage.setItem(
+      "userProfile",
+      JSON.stringify(normalizeProfileData(profilePayload)),
+    );
   }
 
   return {
