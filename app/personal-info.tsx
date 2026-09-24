@@ -1,9 +1,8 @@
 import { Feather } from "@expo/vector-icons";
-import { Stack, useRouter, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     ScrollView,
     Text,
     TextInput,
@@ -17,6 +16,7 @@ import {
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { getStoredUser } from "./api";
+import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 
 export default function PersonalInfo() {
   const router = useRouter();
@@ -26,6 +26,7 @@ export default function PersonalInfo() {
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(params.editMode === "true");
   const [editData, setEditData] = useState<any>(null);
+  const { showAlert, alert } = useCustomAlert();
 
   useEffect(() => {
     getStoredUser().then((u) => {
@@ -55,7 +56,7 @@ export default function PersonalInfo() {
   const handleSaveAll = () => {
     setUser(editData);
     setIsEditMode(false);
-    Alert.alert("Success", "All information updated successfully");
+    showAlert("Success", "All information updated successfully");
   };
 
   return (
@@ -64,6 +65,7 @@ export default function PersonalInfo() {
       edges={["left", "right", "bottom"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
+      {alert}
       <View
         className="px-6 pb-5 z-50 flex-row items-center justify-between"
         style={{

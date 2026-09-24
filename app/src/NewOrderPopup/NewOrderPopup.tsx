@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Modal,
     Text,
     TextInput,
@@ -20,6 +19,7 @@ import {
     getStoredToken,
     getStoredUser,
 } from "../../api";
+import { useCustomAlert } from "../CustomAlert/CustomAlert";
 
 export default function NewOrderPopup() {
   const [showPopup, setShowPopup] = useState(false);
@@ -32,6 +32,7 @@ export default function NewOrderPopup() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectNotes, setRejectNotes] = useState("");
   const [rejecting, setRejecting] = useState(false);
+  const { showAlert, alert, alertVisible } = useCustomAlert();
 
   const router = useRouter();
   const requestInFlight = useRef(false);
@@ -100,9 +101,11 @@ export default function NewOrderPopup() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
+        showAlert(
           "Permission Denied",
           "Location permission is required to accept orders.",
+          [{ text: "OK" }],
+          "warning",
         );
         setLoading(false);
         return;
@@ -132,11 +135,12 @@ export default function NewOrderPopup() {
 
       setShownOrderIds((prev) => new Set(prev).add(getOrderId(popupOrder)));
       setShowPopup(false);
-      Alert.alert("Success", "Order accepted successfully!");
-      router.push("/orders");
+      showAlert("Success", "Order accepted successfully!", [
+        { text: "Continue", onPress: () => router.push("/orders") },
+      ]);
     } catch (error: any) {
       console.error("Accept Error:", error);
-      Alert.alert("Error", error?.message || "Failed to accept order.");
+      showAlert("Error", error?.message || "Failed to accept order.");
     } finally {
       setLoading(false);
     }
@@ -145,7 +149,7 @@ export default function NewOrderPopup() {
   const submitReject = async () => {
     if (!popupOrder) return;
     if (!rejectReason) {
-      Alert.alert("Validation", "Please provide a reason for skipping.");
+      showAlert("Validation", "Please provide a reason for skipping.");
       return;
     }
 
@@ -158,13 +162,13 @@ export default function NewOrderPopup() {
       setRejectNotes("");
     } catch (error: any) {
       console.error("Reject Error:", error);
-      Alert.alert("Error", error?.message || "Failed to skip order.");
+      showAlert("Error", error?.message || "Failed to skip order.");
     } finally {
       setRejecting(false);
     }
   };
 
-  if (!showPopup && !showRejectModal) return null;
+  if (!showPopup && !showRejectModal && !alertVisible) return null;
 
   return (
     <>
@@ -392,6 +396,7 @@ export default function NewOrderPopup() {
           </View>
         </View>
       </Modal>
+      {alert}
     </>
   );
 }

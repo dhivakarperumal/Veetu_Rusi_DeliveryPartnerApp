@@ -1,22 +1,22 @@
 import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { getMyOrders, updateOrderStatus } from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
+import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 import TopHeader from "./src/TopHeader/TopHeader";
 
 /* ─── Status colours (exact match from web admin) ─────────────────────── */
@@ -100,11 +100,12 @@ function UpdateStatusModal({
 }) {
   const [selectedStatus, setSelectedStatus] = useState(order?.status || "");
   const [saving, setSaving] = useState(false);
+  const { showAlert, alert } = useCustomAlert();
 
   const handleSave = async () => {
     if (!selectedStatus || selectedStatus === order?.status) return;
     if (!DELIVERY_STATUSES.includes(selectedStatus)) {
-      Alert.alert("Not allowed", "You can only update to a delivery status.");
+      showAlert("Not allowed", "You can only update to a delivery status.");
       return;
     }
     setSaving(true);
@@ -113,7 +114,7 @@ function UpdateStatusModal({
       onSaved();
       onClose();
     } catch (err: any) {
-      Alert.alert("Error", err?.message || "Failed to update order status.");
+      showAlert("Error", err?.message || "Failed to update order status.");
     } finally {
       setSaving(false);
     }
@@ -125,12 +126,14 @@ function UpdateStatusModal({
   });
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <>
+      {alert}
+      <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+      >
       <TouchableOpacity
         className="flex-1 bg-black/60"
         activeOpacity={1}
@@ -248,7 +251,8 @@ function UpdateStatusModal({
           )}
         </TouchableOpacity>
       </View>
-    </Modal>
+      </Modal>
+    </>
   );
 }
 

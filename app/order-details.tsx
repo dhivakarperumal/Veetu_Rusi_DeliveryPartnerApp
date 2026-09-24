@@ -1,21 +1,21 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { updateOrderStatus } from "./api";
+import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 
 const DELIVERY_STATUSES = [
   "New Order",
@@ -73,6 +73,7 @@ export default function OrderDetails() {
     params.status || "New Order",
   );
   const [updating, setUpdating] = useState(false);
+  const { showAlert, alert } = useCustomAlert();
   const orderKey = String(params.orderId || "").replace(/^#/, "");
   const orderId = orderKey ? `#${orderKey}` : "#ORD123456";
   const amount = Number(params.amount || 75).toFixed(2);
@@ -102,7 +103,7 @@ export default function OrderDetails() {
         params: { orderId: orderKey, status: nextStatus },
       });
     } catch (error: any) {
-      Alert.alert(
+      showAlert(
         "Unable to update status",
         error?.message || "Please try again.",
       );
@@ -117,6 +118,7 @@ export default function OrderDetails() {
       edges={["left", "right"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
+      {alert}
       <View
         className="bg-primary-darkGreen pb-6 px-6 flex-row items-center justify-between rounded-b-3xl mb-4 shadow-sm"
         style={{ paddingTop: Math.max(insets.top, 16) + 16 }}

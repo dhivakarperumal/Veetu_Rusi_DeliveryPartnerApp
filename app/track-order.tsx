@@ -1,9 +1,8 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Text,
     TouchableOpacity,
     View,
@@ -15,6 +14,7 @@ import {
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { updateOrderStatus } from "./api";
+import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 
 export default function TrackOrder() {
   const router = useRouter();
@@ -24,6 +24,7 @@ export default function TrackOrder() {
     params.status || "Delivery Partner Assigned",
   );
   const [updating, setUpdating] = useState(false);
+  const { showAlert, alert } = useCustomAlert();
   const statusIndex = DELIVERY_STATUSES.indexOf(currentStatus);
   const nextStatus =
     statusIndex >= 0
@@ -40,7 +41,7 @@ export default function TrackOrder() {
       );
       setCurrentStatus(nextStatus);
     } catch (error: any) {
-      Alert.alert(
+      showAlert(
         "Unable to update status",
         error?.message || "Please try again.",
       );
@@ -55,6 +56,7 @@ export default function TrackOrder() {
       edges={["top", "left", "right"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
+      {alert}
 
       {/* Header */}
       <View className="px-6 pt-4 pb-4 flex-row items-center justify-between bg-white z-10 shadow-sm">

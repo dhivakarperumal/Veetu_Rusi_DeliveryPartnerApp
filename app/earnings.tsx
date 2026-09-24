@@ -1,9 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Modal,
     RefreshControl,
     ScrollView,
@@ -17,6 +16,7 @@ import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { getMyOrders } from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
+import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 import TopHeader from "./src/TopHeader/TopHeader";
 
 export default function Earnings() {
@@ -29,6 +29,7 @@ export default function Earnings() {
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [filterVisible, setFilterVisible] = useState(false);
+  const { showAlert, alert } = useCustomAlert();
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -107,6 +108,7 @@ export default function Earnings() {
       edges={["left", "right", "bottom"]}
     >
       <Stack.Screen options={{ headerShown: false }} />
+      {alert}
 
       {/* Fixed Header */}
       <TopHeader title="My Earnings" />
@@ -377,7 +379,7 @@ export default function Earnings() {
             <View className="flex-row mt-5">
               <TouchableOpacity
                 onPress={() =>
-                  Alert.alert(
+                  showAlert(
                     "Request payout",
                     "Payout requests will be available once your payout account is configured.",
                   )
@@ -390,7 +392,7 @@ export default function Earnings() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() =>
-                  Alert.alert(
+                  showAlert(
                     "Payout history",
                     "No payout history is available yet.",
                   )
