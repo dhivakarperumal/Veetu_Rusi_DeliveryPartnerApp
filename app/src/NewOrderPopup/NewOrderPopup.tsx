@@ -36,8 +36,10 @@ export default function NewOrderPopup() {
 
   const router = useRouter();
   const requestInFlight = useRef(false);
+  const isMountedRef = useRef(true);
 
   const fetchPendingOrders = useCallback(async () => {
+    if (!isMountedRef.current) return;
     if (showPopup || showRejectModal || requestInFlight.current) return;
     requestInFlight.current = true;
 
@@ -59,24 +61,28 @@ export default function NewOrderPopup() {
         (order: any) => !shownOrderIds.has(getOrderId(order)),
       );
 
-      if (nextOrder) {
+      if (nextOrder && isMountedRef.current) {
         setPopupOrder(nextOrder);
         setShowPopup(true);
         Vibration.vibrate([0, 200, 100, 200]); // buzz pattern to alert driver
       }
     } catch {
     } finally {
-      requestInFlight.current = false;
+      if (isMountedRef.current) {
+        requestInFlight.current = false;
+      }
     }
   }, [showPopup, showRejectModal, shownOrderIds]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     const startPolling = () => {
       void fetchPendingOrders();
     };
     const timeoutId = setTimeout(startPolling, 0);
     const interval = setInterval(startPolling, 9000);
     return () => {
+      isMountedRef.current = false;
       clearTimeout(timeoutId);
       clearInterval(interval);
       requestInFlight.current = false;

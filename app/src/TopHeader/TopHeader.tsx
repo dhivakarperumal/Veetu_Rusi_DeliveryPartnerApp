@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Image,
     Modal,
@@ -27,18 +27,28 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [assignedOrders, setAssignedOrders] = useState<any[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const isMountedRef = useRef(true);
 
   // Load logged-in user from storage
   useEffect(() => {
+    isMountedRef.current = true;
+
     const loadUser = async () => {
       const user = await getStoredUser();
+      if (!isMountedRef.current) return;
+
       if (user?.name) {
         setUserName(user.name);
       } else if (user?.email) {
         setUserName(user.email.split("@")[0]);
       }
     };
-    loadUser();
+
+    void loadUser();
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
   const loadAssignedOrders = async () => {
@@ -48,23 +58,32 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       const orders = Array.isArray(response)
         ? response
         : response?.orders || [];
+
+      if (!isMountedRef.current) return;
+
       setAssignedOrders(
         orders.filter((order: any) => isToday(order) && isAssignedOrder(order)),
       );
     } catch {
-      setAssignedOrders([]);
+      if (isMountedRef.current) {
+        setAssignedOrders([]);
+      }
     } finally {
-      setLoadingNotifications(false);
+      if (isMountedRef.current) {
+        setLoadingNotifications(false);
+      }
     }
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
     const startLoad = () => {
       void loadAssignedOrders();
     };
     const timeoutId = setTimeout(startLoad, 0);
     const interval = setInterval(startLoad, 15000);
     return () => {
+      isMountedRef.current = false;
       clearTimeout(timeoutId);
       clearInterval(interval);
     };
