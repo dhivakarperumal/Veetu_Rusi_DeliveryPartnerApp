@@ -182,7 +182,7 @@ export default function Profile() {
               </View>
 
               <View className="bg-white px-4 pb-4 pt-3">
-                <View className="flex-row justify-between">
+                <View className="flex-row gap-2 justify-between">
                   <ProfileStatCard
                     label="Orders"
                     value={profileStats.orders}
