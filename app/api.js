@@ -541,18 +541,6 @@ export async function getProfileData() {
     api.get("/delivery/profile").catch(() => ({ data: null })),
   ]);
 
-  console.log(
-    "PROFILE_API_RAW",
-    JSON.stringify(
-      {
-        authProfile: profileResult?.data || profileResult,
-        deliveryProfile: partnerResult?.data || partnerResult,
-      },
-      null,
-      2,
-    ),
-  );
-
   const authProfilePayload = resolveProfileRoot(
     profileResult?.data || profileResult || {},
   );
@@ -692,13 +680,6 @@ export async function getAvailableOrders() {
     const response = await api.get("/delivery/orders/available");
     return response.data;
   } catch (error) {
-    console.error("=== GET AVAILABLE ORDERS ERROR ===");
-    console.error("Endpoint:", "/delivery/orders/available");
-    console.error("Base URL:", API_BASE_URL);
-    console.error("Status Code:", error.status);
-    console.error("Error Message:", error.message);
-    console.error("Full Error:", JSON.stringify(error, null, 2));
-    console.error("==================================");
     throw error;
   }
 }

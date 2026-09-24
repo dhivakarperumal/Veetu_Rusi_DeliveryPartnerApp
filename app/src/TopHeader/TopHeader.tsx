@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Image,
     Modal,
@@ -51,8 +51,7 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       setAssignedOrders(
         orders.filter((order: any) => isToday(order) && isAssignedOrder(order)),
       );
-    } catch (error) {
-      console.log("Error loading assigned order notifications:", error);
+    } catch {
       setAssignedOrders([]);
     } finally {
       setLoadingNotifications(false);
@@ -60,9 +59,15 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
   };
 
   useEffect(() => {
-    loadAssignedOrders();
-    const interval = setInterval(loadAssignedOrders, 15000);
-    return () => clearInterval(interval);
+    const startLoad = () => {
+      void loadAssignedOrders();
+    };
+    const timeoutId = setTimeout(startLoad, 0);
+    const interval = setInterval(startLoad, 15000);
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(interval);
+    };
   }, []);
 
   const firstLetter = userName.charAt(0).toUpperCase();

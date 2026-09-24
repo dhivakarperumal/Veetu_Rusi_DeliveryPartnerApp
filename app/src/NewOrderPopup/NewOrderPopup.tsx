@@ -64,19 +64,20 @@ export default function NewOrderPopup() {
         setShowPopup(true);
         Vibration.vibrate([0, 200, 100, 200]); // buzz pattern to alert driver
       }
-    } catch (error) {
-      console.log("Error fetching available orders:", error);
+    } catch {
     } finally {
       requestInFlight.current = false;
     }
   }, [showPopup, showRejectModal, shownOrderIds]);
 
   useEffect(() => {
-    fetchPendingOrders();
-    const interval = setInterval(() => {
-      fetchPendingOrders();
-    }, 9000);
+    const startPolling = () => {
+      void fetchPendingOrders();
+    };
+    const timeoutId = setTimeout(startPolling, 0);
+    const interval = setInterval(startPolling, 9000);
     return () => {
+      clearTimeout(timeoutId);
       clearInterval(interval);
       requestInFlight.current = false;
     };
@@ -139,7 +140,6 @@ export default function NewOrderPopup() {
         { text: "Continue", onPress: () => router.push("/orders") },
       ]);
     } catch (error: any) {
-      console.error("Accept Error:", error);
       showAlert("Error", error?.message || "Failed to accept order.");
     } finally {
       setLoading(false);
@@ -161,7 +161,6 @@ export default function NewOrderPopup() {
       setRejectReason("");
       setRejectNotes("");
     } catch (error: any) {
-      console.error("Reject Error:", error);
       showAlert("Error", error?.message || "Failed to skip order.");
     } finally {
       setRejecting(false);

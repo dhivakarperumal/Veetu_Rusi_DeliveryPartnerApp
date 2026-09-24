@@ -2,20 +2,20 @@ import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import {
-    getMyOrders,
-    getProfileData,
-    getStoredUser,
-    logoutUser,
+  getMyOrders,
+  getProfileData,
+  getStoredUser,
+  logoutUser,
 } from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
 import TopHeader from "./src/TopHeader/TopHeader";
@@ -57,13 +57,6 @@ export default function Profile() {
             ? storedUserResult.value
             : null);
         const storedUser = resolvedProfile || null;
-
-        console.log("PROFILE_DEBUG", {
-          profileData,
-          resolvedProfile,
-          storedUser,
-          orders: ordersResult.status === "fulfilled" ? ordersResult.value : [],
-        });
 
         const response =
           ordersResult.status === "fulfilled" ? ordersResult.value : [];
