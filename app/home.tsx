@@ -1,14 +1,14 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -175,21 +175,24 @@ export default function Home() {
             </View>
           </View>
 
-          <View className="flex-row mt-5 mb-5">
+          <View className="flex-row mt-5 mb-5 items-center">
             {["Today", "This Week", "This Month"].map((item) => (
               <TouchableOpacity
                 key={item}
                 onPress={() => setPeriod(item)}
-                className={`mr-2 px-4 py-2.5 rounded-xl ${period === item ? "bg-accent-darkBrown" : "bg-white border border-gray-100"}`}
+                className={`flex-1 mx-1 px-2 py-2.5 rounded-xl items-center justify-center ${period === item ? "bg-accent-darkBrown" : "bg-white border border-gray-100"}`}
               >
                 <Text
-                  className={`text-xs font-bold ${period === item ? "text-white" : "text-gray-500"}`}
+                  className={`text-[11px] font-bold text-center ${period === item ? "text-white" : "text-gray-500"}`}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
                 >
                   {item}
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity className="ml-auto bg-white border border-gray-100 rounded-xl px-3 py-2.5">
+            <TouchableOpacity className="ml-1 bg-white border border-gray-100 rounded-xl px-3 py-2.5 items-center justify-center">
               <Feather
                 name="sliders"
                 size={16}
