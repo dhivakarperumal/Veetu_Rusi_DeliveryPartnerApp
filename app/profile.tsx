@@ -1,33 +1,70 @@
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { Stack, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
-import { getStoredUser, logoutUser } from "./api";
+import { getMyOrders, getStoredUser, logoutUser } from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
 import TopHeader from "./src/TopHeader/TopHeader";
 
 export default function Profile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [profileStats, setProfileStats] = useState({
+    orders: "—",
+    rating: "—",
+    trips: "—",
+  });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const storedUser = await getStoredUser();
-      setUser(storedUser);
-      setLoading(false);
-    };
-    loadUser();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const loadProfile = async () => {
+        const [userResult, ordersResult] = await Promise.allSettled([
+          getStoredUser(),
+          getMyOrders("All"),
+        ]);
+
+        if (!isActive) return;
+
+        const storedUser =
+          userResult.status === "fulfilled" ? userResult.value : null;
+        const response =
+          ordersResult.status === "fulfilled" ? ordersResult.value : [];
+        const orders = Array.isArray(response)
+          ? response
+          : response?.orders || [];
+        const completedOrders = orders.filter(isCompletedOrder);
+        const rating = getProfileRating(storedUser, orders);
+
+        setUser(storedUser);
+        setProfileStats({
+          orders: String(orders.length),
+          rating: rating === null ? "—" : rating.toFixed(1),
+          trips: orders.length
+            ? `${Math.round((completedOrders.length / orders.length) * 100)}%`
+            : "—",
+        });
+        setLoading(false);
+      };
+
+      loadProfile();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
 
   const handleLogout = async () => {
     await logoutUser();
@@ -113,9 +150,21 @@ export default function Profile() {
 
               <View className="bg-white px-4 pb-4 pt-3">
                 <View className="flex-row justify-between">
-                  <ProfileStatCard label="Orders" value="128" tone="green" />
-                  <ProfileStatCard label="Rating" value="4.9" tone="gold" />
-                  <ProfileStatCard label="Trips" value="96%" tone="blue" />
+                  <ProfileStatCard
+                    label="Orders"
+                    value={profileStats.orders}
+                    tone="green"
+                  />
+                  <ProfileStatCard
+                    label="Rating"
+                    value={profileStats.rating}
+                    tone="gold"
+                  />
+                  <ProfileStatCard
+                    label="Trips"
+                    value={profileStats.trips}
+                    tone="blue"
+                  />
                 </View>
 
                 {user?.email && (
@@ -260,6 +309,44 @@ function ProfileStatCard({
       </Text>
     </View>
   );
+}
+
+function isCompletedOrder(order: any) {
+  const status = String(order?.status || "").toLowerCase();
+  return ["delivered", "completed"].includes(status);
+}
+
+function getProfileRating(user: any, orders: any[]) {
+  const userRating = getNumericValue(
+    user?.rating ?? user?.average_rating ?? user?.avg_rating,
+  );
+
+  if (userRating !== null) {
+    return userRating;
+  }
+
+  const orderRatings = orders
+    .map((order) =>
+      getNumericValue(
+        order?.rating ??
+          order?.review_rating ??
+          order?.customer_rating ??
+          order?.delivery_rating,
+      ),
+    )
+    .filter((rating): rating is number => rating !== null);
+
+  return orderRatings.length
+    ? orderRatings.reduce((sum, rating) => sum + rating, 0) /
+        orderRatings.length
+    : null;
+}
+
+function getNumericValue(value: unknown) {
+  const numericValue = Number(value);
+  return value !== null && value !== undefined && Number.isFinite(numericValue)
+    ? numericValue
+    : null;
 }
 
 function getIoniconName(icon: string): any {
