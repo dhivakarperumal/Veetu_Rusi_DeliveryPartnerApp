@@ -541,12 +541,34 @@ export async function getProfileData() {
     api.get("/delivery/profile").catch(() => ({ data: null })),
   ]);
 
-  console.log("PROFILE_API_RAW", JSON.stringify(profileResult?.data || profileResult, null, 2));
+  console.log(
+    "PROFILE_API_RAW",
+    JSON.stringify(
+      {
+        authProfile: profileResult?.data || profileResult,
+        deliveryProfile: partnerResult?.data || partnerResult,
+      },
+      null,
+      2,
+    ),
+  );
 
-  const profilePayload = resolveProfileRoot(profileResult?.data || profileResult || {});
-  const profile = normalizeProfileData(profilePayload);
+  const authProfilePayload = resolveProfileRoot(
+    profileResult?.data || profileResult || {},
+  );
+  const deliveryProfilePayload = resolveProfileRoot(
+    partnerResult?.data || partnerResult || {},
+  );
+  const mergedProfile = normalizeProfileData({
+    ...authProfilePayload,
+    ...deliveryProfilePayload,
+  });
+
+  const profile = mergedProfile;
   const referral = referralResult.data || {};
-  const partner = partnerResult.data || null;
+  const partner = deliveryProfilePayload && Object.keys(deliveryProfilePayload).length
+    ? deliveryProfilePayload
+    : null;
 
   await AsyncStorage.setItem("userProfile", JSON.stringify(profile));
 

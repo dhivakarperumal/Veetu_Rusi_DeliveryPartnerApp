@@ -49,6 +49,7 @@ export default function Profile() {
         const profileData =
           profileResult.status === "fulfilled" ? profileResult.value : null;
         const resolvedProfile =
+          profileData?.partner ||
           profileData?.profile ||
           profileData?.user ||
           profileData ||
@@ -56,6 +57,14 @@ export default function Profile() {
             ? storedUserResult.value
             : null);
         const storedUser = resolvedProfile || null;
+
+        console.log("PROFILE_DEBUG", {
+          profileData,
+          resolvedProfile,
+          storedUser,
+          orders: ordersResult.status === "fulfilled" ? ordersResult.value : [],
+        });
+
         const response =
           ordersResult.status === "fulfilled" ? ordersResult.value : [];
         const orders = Array.isArray(response)
