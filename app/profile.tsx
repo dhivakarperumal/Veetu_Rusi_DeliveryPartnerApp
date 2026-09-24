@@ -262,7 +262,7 @@ export default function Profile() {
                 label="Bank Details"
                 onPress={() => router.push("/bank-details")}
               />
-              <MenuItem icon="bell" label="Notifications" onPress={() => {}} />
+              
               <MenuItem
                 icon="clock"
                 label="Help & Support"
