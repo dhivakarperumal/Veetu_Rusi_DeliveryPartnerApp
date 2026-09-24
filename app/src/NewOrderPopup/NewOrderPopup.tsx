@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -260,12 +260,12 @@ export default function NewOrderPopup() {
             )}
 
             {/* Action Buttons */}
-            <View className="px-6 pb-6 space-y-3">
+            <View className="px-6 pb-6">
               {/* Accept Button - Primary CTA */}
               <TouchableOpacity
                 onPress={handleAcceptOrder}
                 disabled={loading}
-                className={`rounded-2xl py-4 items-center justify-center flex-row ${
+                className={`h-14 rounded-2xl items-center justify-center flex-row ${
                   loading ? "bg-primary-darkGreen/70" : "bg-primary-brandGreen"
                 } shadow-lg`}
               >
@@ -282,11 +282,11 @@ export default function NewOrderPopup() {
               </TouchableOpacity>
 
               {/* Secondary Actions */}
-              <View className="flex-row gap-3">
+              <View className="flex-row" style={{ gap: 12, marginTop: 12 }}>
                 <TouchableOpacity
                   onPress={handleSkipOrder}
                   disabled={loading}
-                  className="flex-1 bg-status-errorLight border-2 border-status-error rounded-2xl py-3.5 items-center justify-center"
+                  className="h-14 flex-1 bg-status-errorLight border-2 border-status-error rounded-2xl items-center justify-center"
                 >
                   <Text className="text-status-error font-extrabold text-sm">
                     Skip Order
@@ -295,7 +295,7 @@ export default function NewOrderPopup() {
                 <TouchableOpacity
                   onPress={handleNextOrder}
                   disabled={loading}
-                  className="flex-1 bg-gray-100 border-2 border-gray-300 rounded-2xl py-3.5 items-center justify-center"
+                  className="h-14 flex-1 bg-gray-100 border-2 border-gray-300 rounded-2xl items-center justify-center"
                 >
                   <Text className="text-gray-700 font-extrabold text-sm">
                     Next Order
