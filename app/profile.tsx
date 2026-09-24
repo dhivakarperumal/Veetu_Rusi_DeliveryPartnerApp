@@ -332,7 +332,7 @@ export default function Profile() {
   );
 }
 
-function SummarySection({ title, items }: { title: string; items: Array<{ label: string; value: string }> }) {
+function SummarySection({ title, items }: { title: string; items: { label: string; value: string }[] }) {
   return (
     <View className="mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <Text className="mb-3 text-[11px] font-bold uppercase tracking-[1.2px] text-primary-darkGreen">
