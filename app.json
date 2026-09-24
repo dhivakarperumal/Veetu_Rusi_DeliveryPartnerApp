@@ -40,6 +40,15 @@
       ],
       "expo-font",
       "expo-image",
+      [
+        "expo-navigation-bar",
+        {
+          "backgroundColor": "#1F2937",
+          "style": "dark",
+          "hidden": false,
+          "position": "relative"
+        }
+      ],
       "expo-status-bar",
       "expo-web-browser"
     ],
