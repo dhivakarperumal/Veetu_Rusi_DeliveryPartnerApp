@@ -238,51 +238,6 @@ export default function Profile() {
               </View>
             </View>
 
-            <View className="px-4 pb-4">
-              <SummarySection
-                title="Personal Information"
-                items={[
-                  { label: "Mobile", value: user?.mobile || user?.phone || "—" },
-                  { label: "Email", value: user?.email || "—" },
-                  { label: "Gender", value: user?.gender || "—" },
-                  { label: "DOB", value: user?.date_of_birth || "—" },
-                  { label: "Address", value: user?.current_address || user?.permanent_address || "—" },
-                ]}
-              />
-
-              <SummarySection
-                title="Vehicle Details"
-                items={[
-                  { label: "Brand", value: user?.vehicle_brand || "—" },
-                  { label: "Model", value: user?.vehicle_model || "—" },
-                  { label: "Number", value: user?.vehicle_number || "—" },
-                  { label: "Color", value: user?.vehicle_color || "—" },
-                  { label: "License", value: user?.license_number || "—" },
-                ]}
-              />
-
-              <SummarySection
-                title="Document Details"
-                items={[
-                  { label: "KYC", value: user?.kyc_verification_status || "Pending" },
-                  { label: "Aadhaar", value: user?.aadhaar_number || "—" },
-                  { label: "PAN", value: user?.pan_number || "—" },
-                  { label: "Status", value: user?.background_verification_status || "Pending" },
-                ]}
-              />
-
-              <SummarySection
-                title="Bank Details"
-                items={[
-                  { label: "Account Holder", value: user?.account_holder_name || "—" },
-                  { label: "Bank", value: user?.bank_name || "—" },
-                  { label: "Account", value: user?.bank_account_number ? `****${String(user.bank_account_number).slice(-4)}` : "—" },
-                  { label: "IFSC", value: user?.ifsc_code || "—" },
-                  { label: "UPI", value: user?.upi_id || "—" },
-                ]}
-              />
-            </View>
-
             {/* Menu Options */}
             <View className="px-4 pb-24 space-y-3">
               <MenuItem
