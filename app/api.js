@@ -38,45 +38,133 @@ function resolveProfileRoot(payload) {
     return {};
   }
 
-  if (payload.user && typeof payload.user === "object") return payload.user;
-  if (payload.profile && typeof payload.profile === "object") return payload.profile;
-  if (payload.data && typeof payload.data === "object") {
-    if (payload.data.user && typeof payload.data.user === "object") {
-      return payload.data.user;
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const resolved = resolveProfileRoot(item);
+      if (resolved && Object.keys(resolved).length > 0) {
+        return resolved;
+      }
     }
-    if (payload.data.profile && typeof payload.data.profile === "object") {
-      return payload.data.profile;
-    }
-    return payload.data;
+    return {};
   }
-  if (payload.result && typeof payload.result === "object") {
-    if (payload.result.user && typeof payload.result.user === "object") {
-      return payload.result.user;
+
+  const candidateKeys = [
+    "user",
+    "profile",
+    "data",
+    "result",
+    "customer",
+    "partner",
+    "deliveryPartner",
+    "delivery_partner",
+  ];
+
+  for (const key of candidateKeys) {
+    const value = payload[key];
+    if (value && typeof value === "object") {
+      const resolved = resolveProfileRoot(value);
+      if (resolved && Object.keys(resolved).length > 0) {
+        return resolved;
+      }
     }
-    if (payload.result.profile && typeof payload.result.profile === "object") {
-      return payload.result.profile;
+  }
+
+  const profileLikeKeys = [
+    "name",
+    "email",
+    "mobile",
+    "phone",
+    "whatsapp_number",
+    "vehicle_number",
+    "aadhaar_number",
+    "bank_account_number",
+    "wallet_balance",
+  ];
+
+  const hasProfileLikeFields = profileLikeKeys.some((key) =>
+    Object.prototype.hasOwnProperty.call(payload, key),
+  );
+
+  if (hasProfileLikeFields) {
+    return payload;
+  }
+
+  for (const value of Object.values(payload)) {
+    if (value && typeof value === "object") {
+      const resolved = resolveProfileRoot(value);
+      if (resolved && Object.keys(resolved).length > 0) {
+        return resolved;
+      }
     }
-    return payload.result;
   }
 
   return payload;
 }
 
+function flattenObject(value, parentKey = "", result = {}) {
+  if (!value || typeof value !== "object") {
+    if (parentKey) {
+      result[parentKey] = value;
+    }
+    return result;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      flattenObject(item, `${parentKey}[${index}]`, result);
+    });
+    return result;
+  }
+
+  Object.entries(value).forEach(([key, nestedValue]) => {
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+    if (
+      nestedValue !== null &&
+      typeof nestedValue === "object" &&
+      !Array.isArray(nestedValue)
+    ) {
+      flattenObject(nestedValue, fullKey, result);
+    } else {
+      result[fullKey] = nestedValue;
+      result[key] = nestedValue;
+    }
+  });
+
+  return result;
+}
+
 function getNestedValue(obj, ...keys) {
   if (!obj || typeof obj !== "object") return undefined;
 
-  const searchTargets = [obj];
-  if (obj.data && typeof obj.data === "object") searchTargets.push(obj.data);
-  if (obj.user && typeof obj.user === "object") searchTargets.push(obj.user);
-  if (obj.profile && typeof obj.profile === "object") searchTargets.push(obj.profile);
+  const flatObj = flattenObject(obj);
+  const normalizedKeys = keys.map((key) => String(key || "").trim());
 
-  for (const target of searchTargets) {
-    for (const key of keys) {
-      if (!key) continue;
-      const value = target?.[key];
-      if (value !== undefined && value !== null && value !== "") {
-        return value;
-      }
+  for (const key of normalizedKeys) {
+    if (!key) continue;
+
+    const directValue = obj?.[key];
+    if (directValue !== undefined && directValue !== null && directValue !== "") {
+      return directValue;
+    }
+
+    const flatValue = flatObj[key];
+    if (flatValue !== undefined && flatValue !== null && flatValue !== "") {
+      return flatValue;
+    }
+
+    const keyLower = key.toLowerCase();
+    const aliasMatch = Object.entries(flatObj).find(([flatKey, value]) => {
+      const flatLower = flatKey.toLowerCase();
+      return (
+        flatLower === keyLower ||
+        flatLower.endsWith(`.${keyLower}`) ||
+        flatLower.endsWith(keyLower) ||
+        flatLower.includes(keyLower)
+      ) && value !== undefined && value !== null && value !== "";
+    });
+
+    if (aliasMatch) {
+      return aliasMatch[1];
     }
   }
 
@@ -88,7 +176,8 @@ export function normalizeProfileData(profile) {
     return {};
   }
 
-  const normalized = { ...profile };
+  const resolvedProfile = Array.isArray(profile) ? profile[0] || {} : profile;
+  const normalized = { ...resolvedProfile };
 
   const firstName = getNestedValue(
     profile,
@@ -452,7 +541,9 @@ export async function getProfileData() {
     api.get("/delivery/profile").catch(() => ({ data: null })),
   ]);
 
-  const profilePayload = resolveProfileRoot(profileResult.data || profileResult);
+  console.log("PROFILE_API_RAW", JSON.stringify(profileResult?.data || profileResult, null, 2));
+
+  const profilePayload = resolveProfileRoot(profileResult?.data || profileResult || {});
   const profile = normalizeProfileData(profilePayload);
   const referral = referralResult.data || {};
   const partner = partnerResult.data || null;
