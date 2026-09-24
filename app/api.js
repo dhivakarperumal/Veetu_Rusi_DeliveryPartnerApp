@@ -2,8 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "https://veeturusi.qtechx.com/api"; 
-  // process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.6:5000/api";
+  // process.env.EXPO_PUBLIC_API_URL || "https://veeturusi.qtechx.com/api"; 
+  process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.4:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -36,6 +36,41 @@ export async function getStoredToken() {
 export async function getStoredUser() {
   const storedUser = await AsyncStorage.getItem("userProfile");
   return storedUser ? JSON.parse(storedUser) : null;
+}
+
+export async function getProfileData() {
+  const [profileResult, referralResult, partnerResult] = await Promise.all([
+    api.get("/auth/profile"),
+    api.get("/referrals/dashboard").catch(() => ({ data: {} })),
+    api.get("/delivery/profile").catch(() => ({ data: null })),
+  ]);
+
+  const profile = profileResult.data?.user || profileResult.data || {};
+  const referral = referralResult.data || {};
+  const partner = partnerResult.data || null;
+
+  await AsyncStorage.setItem("userProfile", JSON.stringify(profile));
+
+  return { profile, referral, partner };
+}
+
+export async function updateUserProfile(profile) {
+  const response = await api.put("/auth/profile", profile);
+  const updatedUser = response.data?.user || response.data;
+
+  if (updatedUser) {
+    await AsyncStorage.setItem("userProfile", JSON.stringify(updatedUser));
+  }
+
+  return response.data;
+}
+
+export async function changeUserPassword(currentPassword, newPassword) {
+  const response = await api.put("/auth/profile/password", {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
 }
 
 api.interceptors.request.use(async (config) => {

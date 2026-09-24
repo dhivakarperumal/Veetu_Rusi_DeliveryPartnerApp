@@ -1,6 +1,11 @@
 import { Feather } from "@expo/vector-icons";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import {
+    Stack,
+    useFocusEffect,
+    useLocalSearchParams,
+    useRouter,
+} from "expo-router";
+import { useCallback, useState } from "react";
 import {
     ActivityIndicator,
     ScrollView,
@@ -15,7 +20,12 @@ import {
 } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
-import { getStoredUser } from "./api";
+import {
+    changeUserPassword,
+    getProfileData,
+    getStoredUser,
+    updateUserProfile,
+} from "./api";
 import { useCustomAlert } from "./src/CustomAlert/CustomAlert";
 
 export default function PersonalInfo() {
@@ -26,15 +36,33 @@ export default function PersonalInfo() {
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(params.editMode === "true");
   const [editData, setEditData] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
   const { showAlert, alert } = useCustomAlert();
 
-  useEffect(() => {
-    getStoredUser().then((u) => {
-      setUser(u);
-      setEditData(u);
+  const loadProfile = useCallback(async () => {
+    try {
+      const { profile } = await getProfileData();
+      setUser(profile);
+      setEditData(profile);
+    } catch {
+      const storedUser = await getStoredUser();
+      setUser(storedUser);
+      setEditData(storedUser);
+    } finally {
       setLoading(false);
-    });
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile]),
+  );
 
   const handleEditAll = () => {
     setIsEditMode(true);
@@ -53,10 +81,51 @@ export default function PersonalInfo() {
     });
   };
 
-  const handleSaveAll = () => {
-    setUser(editData);
-    setIsEditMode(false);
-    showAlert("Success", "All information updated successfully");
+  const handleSaveAll = async () => {
+    if (!editData) return;
+    setSaving(true);
+
+    try {
+      const response = await updateUserProfile(editData);
+      const updatedUser = response?.user || response;
+      setUser(updatedUser);
+      setEditData(updatedUser);
+      setIsEditMode(false);
+      showAlert("Success", "All information updated successfully");
+    } catch (error: any) {
+      showAlert("Error", error?.message || "Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!currentPassword.trim()) {
+      showAlert("Validation", "Enter your current password.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      showAlert("Validation", "New password must be at least 6 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showAlert("Validation", "New passwords do not match.");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await changeUserPassword(currentPassword, newPassword);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPasswordFields(false);
+      showAlert("Success", "Password changed successfully.");
+    } catch (error: any) {
+      showAlert("Error", error?.message || "Failed to change password.");
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   return (
@@ -275,11 +344,16 @@ export default function PersonalInfo() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleSaveAll}
+                    disabled={saving}
                     className="flex-1 py-4 rounded-2xl bg-primary-darkGreen"
                   >
-                    <Text className="text-white font-extrabold text-sm text-center">
-                      Save All Changes
-                    </Text>
+                    {saving ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <Text className="text-white font-extrabold text-sm text-center">
+                        Save All Changes
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               </>
@@ -393,6 +467,67 @@ export default function PersonalInfo() {
                   value={user?.login_status}
                   icon="log-in"
                 />
+
+                <SectionTitle title="Security" />
+                {!showPasswordFields ? (
+                  <TouchableOpacity
+                    onPress={() => setShowPasswordFields(true)}
+                    className="flex-row items-center justify-center rounded-2xl border border-primary-darkGreen bg-white py-4"
+                  >
+                    <Feather
+                      name="lock"
+                      size={16}
+                      color={Colors.primary.darkGreen}
+                    />
+                    <Text className="ml-2 text-sm font-extrabold text-primary-darkGreen">
+                      Change Password
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                    <EditField
+                      label="Current Password"
+                      value={currentPassword}
+                      onChange={setCurrentPassword}
+                      secureTextEntry
+                    />
+                    <EditField
+                      label="New Password"
+                      value={newPassword}
+                      onChange={setNewPassword}
+                      secureTextEntry
+                    />
+                    <EditField
+                      label="Confirm Password"
+                      value={confirmPassword}
+                      onChange={setConfirmPassword}
+                      secureTextEntry
+                    />
+                    <View className="mt-2 flex-row gap-3">
+                      <TouchableOpacity
+                        onPress={() => setShowPasswordFields(false)}
+                        className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 py-4"
+                      >
+                        <Text className="text-center text-sm font-extrabold text-gray-700">
+                          Cancel
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={handlePasswordChange}
+                        disabled={changingPassword}
+                        className="flex-1 rounded-2xl bg-primary-darkGreen py-4"
+                      >
+                        {changingPassword ? (
+                          <ActivityIndicator color="white" />
+                        ) : (
+                          <Text className="text-center text-sm font-extrabold text-white">
+                            Update Password
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
               </>
             )}
           </View>
@@ -430,10 +565,12 @@ function EditField({
   label,
   value,
   onChange,
+  secureTextEntry = false,
 }: {
   label: string;
   value?: string;
   onChange: (value: string) => void;
+  secureTextEntry?: boolean;
 }) {
   return (
     <View className="mb-3">
@@ -444,6 +581,7 @@ function EditField({
         value={value || ""}
         onChangeText={onChange}
         placeholderTextColor="#94A3B8"
+        secureTextEntry={secureTextEntry}
       />
     </View>
   );

@@ -1,20 +1,20 @@
 import { Feather } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Stack, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
-import { getStoredUser } from "./api";
+import { getProfileData, getStoredUser } from "./api";
 
 export default function Documents() {
   const router = useRouter();
@@ -22,12 +22,23 @@ export default function Documents() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getStoredUser().then((u) => {
-      setUser(u);
+  const loadProfile = useCallback(async () => {
+    try {
+      const { profile } = await getProfileData();
+      setUser(profile);
+    } catch {
+      const storedUser = await getStoredUser();
+      setUser(storedUser);
+    } finally {
       setLoading(false);
-    });
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile]),
+  );
 
   return (
     <SafeAreaView
@@ -168,10 +179,6 @@ function DocCard({ label, value, status, icon }: any) {
     status === "Uploaded" ||
     status === "Active";
   const isPending = status === "Pending";
-  const isMissing =
-    status === "Missing Image" ||
-    status === "Not Uploaded" ||
-    status === "Rejected";
 
   return (
     <View className="bg-white rounded-2xl px-5 py-4 mb-3 border border-gray-100 shadow-sm">

@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Stack, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
     ActivityIndicator,
     ScrollView,
@@ -14,7 +14,7 @@ import {
 } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
-import { getStoredUser } from "./api";
+import { getProfileData, getStoredUser } from "./api";
 
 export default function VehicleInfo() {
   const router = useRouter();
@@ -22,12 +22,23 @@ export default function VehicleInfo() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getStoredUser().then((u) => {
-      setUser(u);
+  const loadProfile = useCallback(async () => {
+    try {
+      const { profile } = await getProfileData();
+      setUser(profile);
+    } catch {
+      const storedUser = await getStoredUser();
+      setUser(storedUser);
+    } finally {
       setLoading(false);
-    });
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile]),
+  );
 
   return (
     <SafeAreaView

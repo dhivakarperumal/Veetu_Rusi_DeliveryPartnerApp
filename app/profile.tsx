@@ -11,7 +11,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
-import { getMyOrders, getStoredUser, logoutUser } from "./api";
+import {
+  getMyOrders,
+  getProfileData,
+  getStoredUser,
+  logoutUser,
+} from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
 import TopHeader from "./src/TopHeader/TopHeader";
 
@@ -23,6 +28,8 @@ export default function Profile() {
     rating: "—",
     trips: "—",
   });
+  const [referralCode, setReferralCode] = useState("");
+  const [partnerData, setPartnerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -30,15 +37,22 @@ export default function Profile() {
       let isActive = true;
 
       const loadProfile = async () => {
-        const [userResult, ordersResult] = await Promise.allSettled([
-          getStoredUser(),
+        const [profileResult, ordersResult, storedUserResult] =
+          await Promise.allSettled([
+          getProfileData(),
           getMyOrders("All"),
+          getStoredUser(),
         ]);
 
         if (!isActive) return;
 
+        const profileData =
+          profileResult.status === "fulfilled" ? profileResult.value : null;
         const storedUser =
-          userResult.status === "fulfilled" ? userResult.value : null;
+          profileData?.profile ||
+          (storedUserResult.status === "fulfilled"
+            ? storedUserResult.value
+            : null);
         const response =
           ordersResult.status === "fulfilled" ? ordersResult.value : [];
         const orders = Array.isArray(response)
@@ -48,6 +62,10 @@ export default function Profile() {
         const rating = getProfileRating(storedUser, orders);
 
         setUser(storedUser);
+        setPartnerData(profileData?.partner || null);
+        setReferralCode(
+          profileData?.referral?.my_code || storedUser?.referral_code || "",
+        );
         setProfileStats({
           orders: String(orders.length),
           rating: rating === null ? "—" : rating.toFixed(1),
@@ -86,6 +104,8 @@ export default function Profile() {
 
   const displayName = user?.name || user?.email?.split("@")[0] || "User";
   const displayPhone = user?.phone || user?.mobile || "—";
+  const partnerStatus =
+    partnerData?.status || partnerData?.account_status || "Available";
 
   return (
     <SafeAreaView
@@ -142,7 +162,7 @@ export default function Profile() {
                   <View className="flex-row items-center">
                     <View className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                     <Text className="ml-2 text-xs font-semibold text-white/80">
-                      Available
+                      {partnerStatus}
                     </Text>
                   </View>
                 </View>
@@ -182,6 +202,24 @@ export default function Profile() {
                     <Text className="mt-2 text-sm font-semibold text-gray-800">
                       {user.email}
                     </Text>
+                  </View>
+                )}
+
+                {referralCode && (
+                  <View className="mt-4 flex-row items-center rounded-2xl border border-primary-lightGreen bg-primary-lightGreen/40 px-4 py-3">
+                    <Feather
+                      name="share-2"
+                      size={18}
+                      color={Colors.primary.brandGreen}
+                    />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-[11px] font-semibold uppercase tracking-[1.2px] text-gray-500">
+                        Referral Code
+                      </Text>
+                      <Text className="mt-1 text-base font-extrabold tracking-widest text-primary-darkGreen">
+                        {referralCode}
+                      </Text>
+                    </View>
                   </View>
                 )}
               </View>
