@@ -1,12 +1,12 @@
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
@@ -68,7 +68,7 @@ export default function Profile() {
         ) : (
           <>
             {/* Profile Header Card */}
-            <View className="mt-2 mx-2 mb-6 overflow-hidden border-b rounded-md border-gray-100 bg-white shadow-sm">
+            <View className="mt-0 mx-0 mb-6 overflow-hidden border-b border-gray-100 bg-white shadow-sm">
               <View className="bg-primary-darkGreen px-5 pb-6 pt-5">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center flex-1">
