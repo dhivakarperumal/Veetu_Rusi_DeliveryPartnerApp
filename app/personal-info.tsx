@@ -187,7 +187,7 @@ export default function PersonalInfo() {
                   value={editData?.mobile}
                   onChange={(v) => handleFieldChange("mobile", v)}
                 />
-                <EditField
+                {/* <EditField
                   label="WhatsApp Number"
                   value={editData?.whatsapp_number}
                   onChange={(v) => handleFieldChange("whatsapp_number", v)}
@@ -226,9 +226,9 @@ export default function PersonalInfo() {
                   label="Father / Husband Name"
                   value={editData?.father_husband_name}
                   onChange={(v) => handleFieldChange("father_husband_name", v)}
-                />
+                /> */}
 
-                <SectionTitle title="Emergency Contact" />
+                {/* <SectionTitle title="Emergency Contact" />
                 <EditField
                   label="Contact Name"
                   value={editData?.emergency_contact_name}
@@ -330,7 +330,7 @@ export default function PersonalInfo() {
                   label="Login Status"
                   value={editData?.login_status}
                   onChange={(v) => handleFieldChange("login_status", v)}
-                />
+                /> */}
 
                 {/* Action Buttons */}
                 <View className="flex-row gap-3 mt-6">
