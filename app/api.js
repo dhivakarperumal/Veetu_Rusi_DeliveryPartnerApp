@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { DeviceEventEmitter } from "react-native";
 
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "https://veeturusi.qtechx.com/api"; 
@@ -694,6 +695,7 @@ export async function markDeliveryAttendance(action, location = {}) {
     action,
     ...location,
   });
+  DeviceEventEmitter.emit("delivery-attendance-updated", { action });
   return response.data;
 }
 

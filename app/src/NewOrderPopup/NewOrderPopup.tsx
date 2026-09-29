@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    DeviceEventEmitter,
     Modal,
     Text,
     TextInput,
@@ -38,6 +39,7 @@ export default function NewOrderPopup() {
   const router = useRouter();
   const requestInFlight = useRef(false);
   const isMountedRef = useRef(true);
+  const isOnlineRef = useRef(false);
 
   const fetchPendingOrders = useCallback(async () => {
     if (!isMountedRef.current) return;
@@ -56,7 +58,8 @@ export default function NewOrderPopup() {
 
       const attendance = await getDeliveryAttendance();
       if (!isMountedRef.current) return;
-      if (!attendance?.currentSession) {
+      isOnlineRef.current = Boolean(attendance?.currentSession);
+      if (!isOnlineRef.current) {
         setShowPopup(false);
         setPopupOrder(null);
         setShowRejectModal(false);
@@ -80,7 +83,7 @@ export default function NewOrderPopup() {
         (order: any) => !shownOrderIds.has(getOrderId(order)),
       );
 
-      if (nextOrder && isMountedRef.current) {
+      if (nextOrder && isMountedRef.current && isOnlineRef.current) {
         setPopupOrder(nextOrder);
         setShowPopup(true);
         Vibration.vibrate([0, 200, 100, 200]); // buzz pattern to alert driver
@@ -111,6 +114,22 @@ export default function NewOrderPopup() {
       clearInterval(interval);
       requestInFlight.current = false;
     };
+  }, [fetchPendingOrders]);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      "delivery-attendance-updated",
+      (event: { action?: string } | undefined) => {
+        if (event?.action === "check_out") {
+          isOnlineRef.current = false;
+          setShowPopup(false);
+          setPopupOrder(null);
+          setShowRejectModal(false);
+        }
+        void fetchPendingOrders();
+      },
+    );
+    return () => subscription.remove();
   }, [fetchPendingOrders]);
 
   const handleSkipOrder = () => {
