@@ -16,6 +16,7 @@ import {
     assignOrder,
     cancelOrder,
     getAvailableOrders,
+    getDeliveryAttendance,
     getStoredToken,
     getStoredUser,
 } from "../../api";
@@ -40,11 +41,29 @@ export default function NewOrderPopup() {
 
   const fetchPendingOrders = useCallback(async () => {
     if (!isMountedRef.current) return;
-    if (showPopup || showRejectModal || requestInFlight.current) return;
+    if (requestInFlight.current) return;
     requestInFlight.current = true;
 
     try {
-      if (!(await getStoredToken())) return;
+      const token = await getStoredToken();
+      if (!isMountedRef.current) return;
+      if (!token) {
+        setShowPopup(false);
+        setPopupOrder(null);
+        setShowRejectModal(false);
+        return;
+      }
+
+      const attendance = await getDeliveryAttendance();
+      if (!isMountedRef.current) return;
+      if (!attendance?.currentSession) {
+        setShowPopup(false);
+        setPopupOrder(null);
+        setShowRejectModal(false);
+        return;
+      }
+
+      if (showPopup || showRejectModal) return;
 
       const response = await getAvailableOrders();
       const allOrders = Array.isArray(response)
@@ -67,6 +86,11 @@ export default function NewOrderPopup() {
         Vibration.vibrate([0, 200, 100, 200]); // buzz pattern to alert driver
       }
     } catch {
+      if (isMountedRef.current) {
+        setShowPopup(false);
+        setPopupOrder(null);
+        setShowRejectModal(false);
+      }
     } finally {
       if (isMountedRef.current) {
         requestInFlight.current = false;
