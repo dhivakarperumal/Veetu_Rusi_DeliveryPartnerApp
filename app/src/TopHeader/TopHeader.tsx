@@ -1,9 +1,12 @@
 import { Feather } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     Image,
+    Linking,
     Modal,
+    Platform,
     Pressable,
     Text,
     TouchableOpacity,
@@ -11,7 +14,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../../src/constants/Colors";
-import { getMyOrders, getStoredUser, logoutUser } from "../../api";
+import {
+    getDeliveryAttendance,
+    getMyOrders,
+    getStoredUser,
+    logoutUser,
+    markDeliveryAttendance,
+} from "../../api";
+import { useCustomAlert } from "../CustomAlert/CustomAlert";
 
 type TopHeaderProps = {
   title?: string;
@@ -27,7 +37,29 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [assignedOrders, setAssignedOrders] = useState<any[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [currentSession, setCurrentSession] = useState<any | null>(null);
+  const [attendanceLoaded, setAttendanceLoaded] = useState(false);
+  const [attendanceError, setAttendanceError] = useState(false);
+  const [attendanceChanging, setAttendanceChanging] = useState(false);
   const isMountedRef = useRef(true);
+  const { showAlert, alert } = useCustomAlert();
+
+  const refreshAttendance = useCallback(async () => {
+    try {
+      const data = await getDeliveryAttendance();
+      if (!isMountedRef.current) return false;
+      setCurrentSession(data?.currentSession || null);
+      setAttendanceLoaded(true);
+      setAttendanceError(false);
+      return true;
+    } catch {
+      if (isMountedRef.current) {
+        setAttendanceLoaded(true);
+        setAttendanceError(true);
+      }
+      return false;
+    }
+  }, []);
 
   // Load logged-in user from storage
   useEffect(() => {
@@ -50,6 +82,16 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
       isMountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    const timeoutId = setTimeout(() => void refreshAttendance(), 0);
+    const interval = setInterval(() => void refreshAttendance(), 15000);
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(interval);
+    };
+  }, [refreshAttendance]);
 
   const loadAssignedOrders = async () => {
     setLoadingNotifications(true);
@@ -101,6 +143,131 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
     setShowProfileMenu(false);
     router.push("/profile");
   };
+
+  const updateAttendance = async () => {
+    const action = currentSession ? "check_out" : "check_in";
+    setAttendanceChanging(true);
+    try {
+      let location = {};
+      if (action === "check_in") {
+        const permission = await Location.requestForegroundPermissionsAsync();
+        if (permission.status !== "granted") {
+          const buttons: {
+            text: string;
+            style?: "default" | "cancel" | "destructive";
+            onPress?: () => void;
+          }[] = [{ text: "Cancel", style: "cancel" }];
+          if (!permission.canAskAgain) {
+            buttons.push({
+              text: "Open Settings",
+              style: "default",
+              onPress: () => void Linking.openSettings(),
+            });
+          }
+          showAlert(
+            "Location permission needed",
+            "Allow location access to check in and receive delivery orders.",
+            buttons,
+            "warning",
+          );
+          return;
+        }
+
+        if (!(await Location.hasServicesEnabledAsync())) {
+          if (Platform.OS === "android") {
+            try {
+              await Location.enableNetworkProviderAsync();
+            } catch {
+              throw new Error("Location must be turned on before you can check in.");
+            }
+          } else if (Platform.OS === "ios") {
+            showAlert(
+              "Location is turned off",
+              "Turn on Location Services in device settings, then return and try again.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Open Settings",
+                  onPress: () => void Linking.openSettings(),
+                },
+              ],
+              "warning",
+            );
+            return;
+          } else {
+            throw new Error("Turn on device location services and try again.");
+          }
+        }
+
+        if (!(await Location.hasServicesEnabledAsync())) {
+          throw new Error("Location is still off. Turn it on and try again.");
+        }
+
+        const position = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        location = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy ?? undefined,
+        };
+      }
+
+      await markDeliveryAttendance(action, location);
+      await refreshAttendance();
+      showAlert(
+        "Attendance updated",
+        action === "check_in"
+          ? "You are online and ready to receive delivery orders."
+          : "You are offline. Your attendance session has ended.",
+        [{ text: "Done" }],
+        "success",
+      );
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        await refreshAttendance();
+      }
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Unable to update attendance. Please try again.";
+      showAlert("Attendance not updated", message, [{ text: "OK" }], "error");
+    } finally {
+      setAttendanceChanging(false);
+    }
+  };
+
+  const confirmAttendanceChange = () => {
+    if (!attendanceLoaded || attendanceError) {
+      void refreshAttendance();
+      return;
+    }
+
+    const checkingOut = Boolean(currentSession);
+    showAlert(
+      checkingOut ? "Go offline?" : "Go online?",
+      checkingOut
+        ? "Check out and end your current delivery session?"
+        : "Check in with your current location and start receiving delivery orders?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: checkingOut ? "Check out" : "Check in",
+          style: checkingOut ? "destructive" : "default",
+          onPress: () => void updateAttendance(),
+        },
+      ],
+      checkingOut ? "warning" : "info",
+    );
+  };
+
+  const attendanceStatusLabel = !attendanceLoaded
+    ? "Checking status"
+    : attendanceError
+      ? "Status unavailable"
+      : currentSession
+        ? `Online since ${formatTime(currentSession.check_in_at)}`
+        : "Offline · not receiving orders";
 
   return (
     <View
@@ -278,8 +445,66 @@ export default function TopHeader({ title, showBack }: TopHeaderProps) {
           </View>
         </View>
       </View>
+      <View className="mt-3 flex-row items-center justify-between rounded-xl border border-white/10 bg-white/10 px-3 py-2.5">
+        <View className="min-w-0 flex-1 flex-row items-center pr-2">
+          <View
+            className={`h-2.5 w-2.5 rounded-full ${currentSession ? "bg-emerald-400" : "bg-gray-400"}`}
+          />
+          <Text
+            numberOfLines={1}
+            className={`ml-2 flex-1 text-[10px] font-bold ${currentSession ? "text-emerald-100" : "text-white/75"}`}
+          >
+            {attendanceStatusLabel}
+          </Text>
+        </View>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={
+            attendanceError
+              ? "Retry attendance status"
+              : currentSession
+                ? "Check out and go offline"
+                : "Check in and go online"
+          }
+          disabled={!attendanceLoaded || attendanceChanging}
+          onPress={attendanceError ? () => void refreshAttendance() : confirmAttendanceChange}
+          activeOpacity={0.8}
+          className={`min-h-9 flex-row items-center justify-center rounded-lg px-3 ${attendanceError ? "bg-white/15" : currentSession ? "bg-red-500/20" : "bg-emerald-500/20"} ${!attendanceLoaded || attendanceChanging ? "opacity-50" : ""}`}
+        >
+          {attendanceChanging ? (
+            <Feather name="loader" size={14} color="white" />
+          ) : (
+            <Feather
+              name={attendanceError ? "refresh-cw" : currentSession ? "log-out" : "log-in"}
+              size={14}
+              color="white"
+            />
+          )}
+          <Text className="ml-1.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+            {attendanceError
+              ? "Retry"
+              : attendanceChanging
+                ? "Updating"
+                : currentSession
+                  ? "Go offline"
+                  : "Go online"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {alert}
     </View>
   );
+}
+
+function formatTime(value?: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : date.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 }
 
 function getOrderId(order: any) {
