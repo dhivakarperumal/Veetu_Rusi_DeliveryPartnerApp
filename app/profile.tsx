@@ -48,15 +48,11 @@ export default function Profile() {
 
         const profileData =
           profileResult.status === "fulfilled" ? profileResult.value : null;
-        const resolvedProfile =
-          profileData?.partner ||
-          profileData?.profile ||
-          profileData?.user ||
-          profileData ||
-          (storedUserResult.status === "fulfilled"
+        const cachedProfile =
+          storedUserResult.status === "fulfilled"
             ? storedUserResult.value
-            : null);
-        const storedUser = resolvedProfile || null;
+            : null;
+        const storedUser = profileData?.profile || cachedProfile || null;
 
         const response =
           ordersResult.status === "fulfilled" ? ordersResult.value : [];
@@ -69,13 +65,12 @@ export default function Profile() {
         setUser(storedUser);
         setPartnerData(
           profileData?.partner ||
-            profileData?.deliveryPartner ||
             storedUser?.partner ||
             null,
         );
         setReferralCode(
           profileData?.referral?.my_code ||
-            profileData?.referral_code ||
+            profileData?.profile?.referral_code ||
             storedUser?.referral_code ||
             "",
         );
