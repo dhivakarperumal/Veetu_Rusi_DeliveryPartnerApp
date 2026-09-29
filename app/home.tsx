@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import { getAvailableOrders, getMyOrders } from "./api";
+import AttendancePrompt from "./src/AttendancePrompt/AttendancePrompt";
 import BottomBar from "./src/Buttombar/BottomBar";
 import NewOrderPopup from "./src/NewOrderPopup/NewOrderPopup";
 import TopHeader from "./src/TopHeader/TopHeader";
@@ -323,6 +324,7 @@ export default function Home() {
       </ScrollView>
 
       {/* New Order Polling Popup */}
+      <AttendancePrompt onMarkAttendance={() => router.push("/attendance")} />
       <NewOrderPopup />
 
       {/* Bottom Navigation */}
