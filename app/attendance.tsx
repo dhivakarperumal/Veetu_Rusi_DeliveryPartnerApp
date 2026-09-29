@@ -4,7 +4,9 @@ import { Stack, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Linking,
+    Platform,
     RefreshControl,
     ScrollView,
     Text,
@@ -106,7 +108,6 @@ export default function Attendance() {
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("all");
   const [customDate, setCustomDate] = useState("");
-  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
   const [currentPage, setCurrentPage] = useState(1);
 
   const loadAttendance = useCallback(async (silent = false) => {
@@ -188,7 +189,29 @@ export default function Attendance() {
           throw new Error("Allow location access to check in.");
         }
         if (!(await Location.hasServicesEnabledAsync())) {
-          throw new Error("Turn on device location services and try again.");
+          if (Platform.OS === "android") {
+            try {
+              await Location.enableNetworkProviderAsync();
+            } catch {
+              throw new Error("Location must be turned on before you can check in.");
+            }
+          } else {
+            Alert.alert(
+              "Location is turned off",
+              "Turn on Location Services in your device settings, then return and check in.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Open Settings",
+                  onPress: () => void Linking.openSettings(),
+                },
+              ],
+            );
+            return;
+          }
+        }
+        if (!(await Location.hasServicesEnabledAsync())) {
+          throw new Error("Location is still off. Turn it on and try again.");
         }
         const position = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
@@ -363,7 +386,7 @@ export default function Attendance() {
             ) : null}
           </View>
 
-          <View className="mb-4 flex-row items-center justify-between">
+          <View className="mb-4">
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -375,20 +398,6 @@ export default function Attendance() {
                 <FilterChip label="This month" active={dateFilter === "month"} onPress={() => setFilter("month")} />
               </View>
             </ScrollView>
-            <View className="ml-2 flex-row rounded-lg border border-gray-200 bg-white p-1">
-              <ViewModeButton
-                icon="grid"
-                selected={viewMode === "cards"}
-                label="Card view"
-                onPress={() => setViewMode("cards")}
-              />
-              <ViewModeButton
-                icon="list"
-                selected={viewMode === "list"}
-                label="List view"
-                onPress={() => setViewMode("list")}
-              />
-            </View>
           </View>
 
           <View className="mb-5 flex-row items-center rounded-xl border border-gray-200 bg-white px-3">
@@ -461,12 +470,11 @@ export default function Attendance() {
               ) : null}
             </View>
           ) : (
-            <View className={viewMode === "cards" ? "gap-y-3" : "rounded-2xl border border-gray-100 bg-white px-4"}>
+            <View className="gap-y-3">
               {paginatedRecords.map((record) => (
                 <AttendanceRecordCard
                   key={record.id}
                   record={record}
-                  compact={viewMode === "list"}
                   onOpenMap={() => void openMap(record)}
                 />
               ))}
@@ -561,41 +569,11 @@ function FilterChip({
   );
 }
 
-function ViewModeButton({
-  icon,
-  selected,
-  label,
-  onPress,
-}: {
-  icon: React.ComponentProps<typeof Feather>["name"];
-  selected: boolean;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      className={`h-8 w-9 items-center justify-center rounded-md ${selected ? "bg-primary-lightGreen" : ""}`}
-    >
-      <Feather
-        name={icon}
-        size={15}
-        color={selected ? Colors.primary.darkGreen : "#8B9288"}
-      />
-    </TouchableOpacity>
-  );
-}
-
 function AttendanceRecordCard({
   record,
-  compact,
   onOpenMap,
 }: {
   record: AttendanceRecord;
-  compact: boolean;
   onOpenMap: () => void;
 }) {
   const completed = Boolean(record.check_out_at);
@@ -605,9 +583,7 @@ function AttendanceRecordCard({
       : "Location not available");
 
   return (
-    <View
-      className={`rounded-2xl border border-gray-100 bg-white ${compact ? "border-0 border-b border-gray-100 px-0 py-4" : "p-4"}`}
-    >
+    <View className="rounded-2xl border border-gray-100 bg-white p-4">
       <View className="flex-row items-start justify-between">
         <View className="flex-1 pr-3">
           <Text className="text-[10px] font-bold uppercase tracking-widest text-primary-brandGreen">
@@ -628,9 +604,9 @@ function AttendanceRecordCard({
         </View>
       </View>
 
-      <View className={`mt-4 flex-row ${compact ? "" : "gap-3"}`}>
-        <TimeCell label="Check in" value={formatTime(record.check_in_at)} compact={compact} />
-        <TimeCell label="Check out" value={formatTime(record.check_out_at)} compact={compact} />
+      <View className="mt-4 flex-row gap-3">
+        <TimeCell label="Check in" value={formatTime(record.check_in_at)} />
+        <TimeCell label="Check out" value={formatTime(record.check_out_at)} />
       </View>
 
       <View className="mt-3 flex-row items-start border-t border-gray-100 pt-3">
@@ -662,14 +638,12 @@ function AttendanceRecordCard({
 function TimeCell({
   label,
   value,
-  compact,
 }: {
   label: string;
   value: string;
-  compact: boolean;
 }) {
   return (
-    <View className={`flex-1 ${compact ? "py-1" : "rounded-xl bg-gray-50 p-3"}`}>
+    <View className="flex-1 rounded-xl bg-gray-50 p-3">
       <Text className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
         {label}
       </Text>
