@@ -2,20 +2,20 @@ import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { Colors } from "../src/constants/Colors";
 import {
-  getMyOrders,
-  getProfileData,
-  getStoredUser,
-  logoutUser,
+    getMyOrders,
+    getProfileData,
+    getStoredUser,
+    logoutUser,
 } from "./api";
 import BottomBar from "./src/Buttombar/BottomBar";
 import TopHeader from "./src/TopHeader/TopHeader";
@@ -240,6 +240,11 @@ export default function Profile() {
 
             {/* Menu Options */}
             <View className="px-4 pb-24 space-y-3">
+              <MenuItem
+                icon="clock"
+                label="Attendance"
+                onPress={() => router.push("/attendance")}
+              />
               <MenuItem
                 icon="user"
                 label="Personal Information"

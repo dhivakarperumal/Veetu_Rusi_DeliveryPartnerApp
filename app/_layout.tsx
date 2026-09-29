@@ -11,6 +11,7 @@ export default function RootLayout() {
       <Stack.Screen name="order-details" />
       <Stack.Screen name="track-order" />
       <Stack.Screen name="earnings" />
+      <Stack.Screen name="attendance" />
       <Stack.Screen name="profile" />
     </Stack>
   );

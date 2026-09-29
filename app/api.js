@@ -684,6 +684,19 @@ export async function getAvailableOrders() {
   }
 }
 
+export async function getDeliveryAttendance() {
+  const response = await api.get("/delivery/attendance");
+  return response.data;
+}
+
+export async function markDeliveryAttendance(action, location = {}) {
+  const response = await api.post("/delivery/attendance", {
+    action,
+    ...location,
+  });
+  return response.data;
+}
+
 export async function assignOrder(orderId, payload) {
   const response = await api.patch(
     `/delivery/orders/${orderId}/assign`,
